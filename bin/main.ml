@@ -3,7 +3,9 @@ let listener (input:string) =
   | "/q" -> raise End_of_file
   | "/help" -> List.iter print_endline (Calculator.Commands.help_command ())
   | "/clear" -> Calculator.Commands.clear_command ()
-  | expr -> print_endline ("= " ^ Calculator.Parser.parser expr)
+  | expr ->
+      print_endline
+        ("= " ^ Calculator.Ast.string_of_expr (Calculator.Parser.parser (Calculator.Lexer.tokenize expr)))
 
 (* Handler and listenr *)
 let () =
