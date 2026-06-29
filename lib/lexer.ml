@@ -14,9 +14,6 @@ let string_of_token = function
   | RPAREN -> "RPAREN"
   | VAR name -> Printf.sprintf "VAR %s" name
 
-let string_of_tokens tokens =
-  "[" ^ String.concat "; " (List.map string_of_token tokens) ^ "]"
-
 let is_digit character = character >= '0' && character <= '9'
 
 let is_alpha character =
