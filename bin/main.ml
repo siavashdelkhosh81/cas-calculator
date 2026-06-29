@@ -5,7 +5,7 @@ let listener (input:string) =
   | "/clear" -> Calculator.Commands.clear_command ()
   | expr ->
       print_endline
-        ("= " ^ Calculator.Ast.string_of_expr (Calculator.Parser.parser (Calculator.Lexer.tokenize expr)))
+        ("= " ^ Calculator.Eval.eval (Calculator.Parser.parser (Calculator.Lexer.tokenize expr)))
 
 (* Handler and listenr *)
 let () =
