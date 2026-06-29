@@ -3,9 +3,10 @@ let listener (input:string) =
   | "/q" -> raise End_of_file
   | "/help" -> List.iter print_endline (Calculator.Commands.help_command ())
   | "/clear" -> Calculator.Commands.clear_command ()
-  | expr ->
-      print_endline
-        ("= " ^ Calculator.Eval.eval (Calculator.Parser.parser (Calculator.Lexer.tokenize expr)))
+  | expr -> (
+      match Calculator.Eval.evaluate expr with
+      | Ok result -> print_endline ("= " ^ result)
+      | Error code -> print_endline ("error: " ^ Calculator.Error.to_string code))
 
 (* Handler and listenr *)
 let () =

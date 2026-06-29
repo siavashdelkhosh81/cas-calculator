@@ -29,9 +29,10 @@ let parser (all_tokens : token list) : expr =
         let inner_expression = parse_expression () in
         (match peek () with
          | Some RPAREN -> consume ()
-         | _ -> failwith "expected a closing )");
+         | _ -> raise (Error.Calc_error Missing_rparen));
         inner_expression
-    | _ -> failwith "expected a number, variable, or ("
+    | None -> raise (Error.Calc_error Unexpected_end)
+    | Some other -> raise (Error.Calc_error (Unexpected_token (string_of_token other)))
 
   and parse_term () =
     let left_side = ref (parse_factor ()) in
@@ -56,5 +57,5 @@ let parser (all_tokens : token list) : expr =
 
   (match peek () with
    | None -> ()
-   | Some _ -> failwith "unexpected tokens after the expression");
+   | Some _ -> raise (Error.Calc_error Trailing_input));
   parsed_tree

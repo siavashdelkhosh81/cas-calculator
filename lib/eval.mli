@@ -1,10 +1,12 @@
-(** Evaluation of parsed expression trees. *)
+(** Evaluation of expressions, from raw text to a result. *)
 
 open Ast
 
-(** [eval tree] walks the expression [tree], computes its numeric value, and
-    returns it rendered as a string (the text shown after [=] in the REPL).
+(** [eval tree] computes the numeric value of [tree].
+    @raise Error.Calc_error if [tree] references an unbound variable. *)
+val eval : expr -> float
 
-    @raise Failure if the expression cannot be evaluated, e.g. it references a
-    variable that has no bound value. *)
-val eval : expr -> string
+(** [evaluate input] lexes, parses, and evaluates [input]. Returns [Ok text]
+    with the result rendered as a string, or [Error code] with a supported
+    {!Error.error} describing what went wrong. Never raises. *)
+val evaluate : string -> (string, Error.error) result

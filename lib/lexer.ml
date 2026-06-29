@@ -40,7 +40,7 @@ let tokenize (input : string) : token list =
       | '(' -> scan (position + 1) (LPAREN :: tokens_so_far)
       | c when is_digit c || c = '.' -> read_number position tokens_so_far
       | c when is_alpha c -> read_identifier position tokens_so_far
-      | _ -> failwith (Printf.sprintf "unexpected character: %c" character)
+      | _ -> raise (Error.Calc_error (Invalid_char character))
 
   (* Grab a run of digits (and one dot) as a single number token. *)
   and read_number start_position tokens_so_far =
@@ -54,7 +54,9 @@ let tokenize (input : string) : token list =
     let number_text =
       String.sub input start_position (!end_position - start_position)
     in
-    scan !end_position (NUM (float_of_string number_text) :: tokens_so_far)
+    (match float_of_string_opt number_text with
+     | Some value -> scan !end_position (NUM value :: tokens_so_far)
+     | None -> raise (Error.Calc_error (Invalid_number number_text)))
 
   (* Grab a run of letters as a single variable token. *)
   and read_identifier start_position tokens_so_far =

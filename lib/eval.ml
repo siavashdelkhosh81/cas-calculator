@@ -1,4 +1,18 @@
 open Ast
 
-(* Eval is going to take the tree experesion and run the calculation *)
-let eval (tree: expr) = ""
+(* Compute the numeric value of an expression tree. *)
+let rec eval (tree : expr) : float =
+  match tree with
+  | Num value -> value
+  | Var name -> raise (Error.Calc_error (Unbound_variable name))
+  | Add (left, right) -> eval left +. eval right
+  | Mul (left, right) -> eval left *. eval right
+
+(* Lex, parse, and evaluate raw input, turning any failure into a result
+   carrying a supported error code. *)
+let evaluate (input : string) : (string, Error.error) result =
+  try
+    let tokens = Lexer.tokenize input in
+    let tree = Parser.parser tokens in
+    Ok (Printf.sprintf "%g" (eval tree))
+  with Error.Calc_error err -> Error err
