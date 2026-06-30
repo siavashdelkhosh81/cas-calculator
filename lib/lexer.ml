@@ -1,6 +1,7 @@
 type token =
   | NUM of float
   | PLUS
+  | MINUS
   | STAR
   | LPAREN
   | RPAREN
@@ -9,6 +10,7 @@ type token =
 let string_of_token = function
   | NUM n -> Printf.sprintf "NUM %g" n
   | PLUS -> "PLUS"
+  | MINUS -> "MINUS"
   | STAR -> "STAR"
   | LPAREN -> "LPAREN"
   | RPAREN -> "RPAREN"
@@ -33,6 +35,7 @@ let tokenize (input : string) : token list =
       | ' ' -> scan (position + 1) tokens_so_far (* skip whitespace *)
       | '+' -> scan (position + 1) (PLUS :: tokens_so_far)
       | '*' -> scan (position + 1) (STAR :: tokens_so_far)
+      | '-' -> scan (position + 1) (MINUS :: tokens_so_far)
       | ')' -> scan (position + 1) (RPAREN :: tokens_so_far)
       | '(' -> scan (position + 1) (LPAREN :: tokens_so_far)
       | c when is_digit c || c = '.' -> read_number position tokens_so_far

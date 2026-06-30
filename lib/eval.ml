@@ -3,10 +3,11 @@ open Ast
 (* Compute the numeric value of an expression tree. *)
 let rec eval (tree : expr) : float =
   match tree with
-  | Num value -> value
-  | Var name -> raise (Error.Calc_error (Unbound_variable name))
-  | Add (left, right) -> eval left +. eval right
   | Mul (left, right) -> eval left *. eval right
+  | Num value -> value
+  | Add (left, right) -> eval left +. eval right
+  | Sub (left, right) -> eval left -. eval right
+  | Var name -> raise (Error.Calc_error (Unbound_variable name))
 
 (* Lex, parse, and evaluate raw input, turning any failure into a result
    carrying a supported error code. *)

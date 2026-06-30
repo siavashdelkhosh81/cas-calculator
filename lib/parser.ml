@@ -36,20 +36,26 @@ let parser (all_tokens : token list) : expr =
 
   and parse_term () =
     let left_side = ref (parse_factor ()) in
+
     while peek () = Some STAR do
       consume ();
       let right_side = parse_factor () in
       left_side := Mul (!left_side, right_side)
     done;
+
     !left_side
 
   and parse_expression () =
     let left_side = ref (parse_term ()) in
-    while peek () = Some PLUS do
-      consume ();
-      let right_side = parse_term () in
-      left_side := Add (!left_side, right_side)
+    let continue = ref true in
+
+    while !continue do
+      match peek () with
+      | Some PLUS  -> consume (); left_side := Add (!left_side, parse_term ())
+      | Some MINUS -> consume (); left_side := Sub (!left_side, parse_term ())
+      | _ -> continue := false
     done;
+
     !left_side
   in
 
