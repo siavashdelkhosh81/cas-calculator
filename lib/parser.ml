@@ -36,11 +36,14 @@ let parser (all_tokens : token list) : expr =
 
   and parse_term () =
     let left_side = ref (parse_factor ()) in
+    let continue = ref true in
 
-    while peek () = Some STAR do
-      consume ();
-      let right_side = parse_factor () in
-      left_side := Mul (!left_side, right_side)
+
+    while !continue do
+      match peek () with
+      | Some STAR -> consume (); left_side := Mul (!left_side, parse_factor ())
+      | Some SLASH -> consume (); left_side := Div (!left_side, parse_factor ())
+      | _ -> continue := false
     done;
 
     !left_side
