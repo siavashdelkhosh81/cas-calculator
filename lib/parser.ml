@@ -34,16 +34,22 @@ let parser (all_tokens : token list) : expr =
     | None -> raise (Error.Calc_error Unexpected_end)
     | Some other -> raise (Error.Calc_error (Unexpected_token (string_of_token other)))
 
-  and parse_term () =
-    let left_side = ref (parse_factor ()) in
-    let continue = ref true in
 
+  and parse_power () =
+    let base = parse_factor () in
+
+    match peek () with
+    | Some CARET -> consume (); Expo (base, parse_power ())
+    | _ -> base
+
+  and parse_term () =
+    let left_side = ref (parse_power ()) in
+    let continue = ref true in
 
     while !continue do
       match peek () with
-      | Some STAR -> consume (); left_side := Mul (!left_side, parse_factor ())
-      | Some SLASH -> consume (); left_side := Div (!left_side, parse_factor ())
-      | Some CARET -> consume (); left_side := Expo (!left_side, parse_factor ())
+      | Some STAR -> consume (); left_side := Mul (!left_side, parse_power ())
+      | Some SLASH -> consume (); left_side := Div (!left_side, parse_power ())
       | _ -> continue := false
     done;
 
