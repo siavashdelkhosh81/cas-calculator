@@ -4,6 +4,7 @@ type token =
   | MINUS
   | STAR
   | SLASH
+  | CARET
   | LPAREN
   | RPAREN
   | VAR of string
@@ -13,6 +14,7 @@ let string_of_token = function
   | PLUS -> "PLUS"
   | MINUS -> "MINUS"
   | STAR -> "STAR"
+  | CARET -> "CARET"
   | SLASH -> "SLASH"
   | LPAREN -> "LPAREN"
   | RPAREN -> "RPAREN"
@@ -37,6 +39,7 @@ let tokenize (input : string) : token list =
       | ' ' -> scan (position + 1) tokens_so_far (* skip whitespace *)
       | '+' -> scan (position + 1) (PLUS :: tokens_so_far)
       | '*' -> scan (position + 1) (STAR :: tokens_so_far)
+      | '^' -> scan (position + 1) (CARET :: tokens_so_far)
       | '/' -> scan (position + 1) (SLASH :: tokens_so_far)
       | '-' -> scan (position + 1) (MINUS :: tokens_so_far)
       | ')' -> scan (position + 1) (RPAREN :: tokens_so_far)

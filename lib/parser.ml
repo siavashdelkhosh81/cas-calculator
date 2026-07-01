@@ -43,6 +43,7 @@ let parser (all_tokens : token list) : expr =
       match peek () with
       | Some STAR -> consume (); left_side := Mul (!left_side, parse_factor ())
       | Some SLASH -> consume (); left_side := Div (!left_side, parse_factor ())
+      | Some CARET -> consume (); left_side := Expo (!left_side, parse_factor ())
       | _ -> continue := false
     done;
 
