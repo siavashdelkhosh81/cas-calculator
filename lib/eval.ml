@@ -4,6 +4,7 @@ open Ast
 let rec eval (tree : expr) : float =
   match tree with
   | Mul (left, right) -> eval left *. eval right
+  | Expo (left, right) -> eval left ** eval right
   | Div (left, right) -> eval left /. eval right
   | Num value -> value
   | Add (left, right) -> eval left +. eval right

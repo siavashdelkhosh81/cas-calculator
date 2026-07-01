@@ -6,3 +6,4 @@ type expr =
   | Sub of expr * expr
   | Mul of expr * expr
   | Div of expr * expr
+  | Expo of expr * expr
