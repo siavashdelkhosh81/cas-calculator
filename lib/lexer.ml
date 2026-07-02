@@ -33,6 +33,7 @@ let tokenize (input : string) : token list =
   (* Walk through the string one position at a time, collecting tokens. *)
   let rec scan position tokens_so_far =
     if position >= length then List.rev tokens_so_far
+
     else
       let character = input.[position] in
       match character with
@@ -57,9 +58,11 @@ let tokenize (input : string) : token list =
     do
       incr end_position
     done;
+
     let number_text =
       String.sub input start_position (!end_position - start_position)
     in
+
     (match float_of_string_opt number_text with
      | Some value -> scan !end_position (NUM value :: tokens_so_far)
      | None -> raise (Error.Calc_error (Invalid_number number_text)))
@@ -67,12 +70,15 @@ let tokenize (input : string) : token list =
   (* Grab a run of letters as a single variable token. *)
   and read_identifier start_position tokens_so_far =
     let end_position = ref start_position in
+
     while !end_position < length && is_alpha input.[!end_position] do
       incr end_position
     done;
+
     let identifier_text =
       String.sub input start_position (!end_position - start_position)
     in
+
     scan !end_position (VAR identifier_text :: tokens_so_far)
   in
 
