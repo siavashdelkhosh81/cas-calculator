@@ -10,6 +10,12 @@ let rec eval (tree : expr) : float =
   | Add (left, right) -> eval left +. eval right
   | Sub (left, right) -> eval left -. eval right
   | Var name -> raise (Error.Calc_error (Unbound_variable name))
+  | Func (name, arg) -> (
+      let x = eval arg in
+      match name with
+      | "sin" -> sin x
+      | "cos" -> cos x
+      | _ -> raise (Error.Calc_error (Unknown_function name)))
 
 (* Lex, parse, and evaluate raw input, turning any failure into a result
    carrying a supported error code. *)

@@ -7,6 +7,7 @@ type error =
   | Missing_rparen
   | Trailing_input
   | Unbound_variable of string
+  | Unknown_function of string
 
 (* Raised internally by the lexer, parser, and evaluator; caught at the
    evaluate boundary and turned into a result. *)
@@ -20,3 +21,4 @@ let to_string = function
   | Missing_rparen -> "missing closing ')'"
   | Trailing_input -> "unexpected tokens after the expression"
   | Unbound_variable name -> Printf.sprintf "unbound variable: %s" name
+  | Unknown_function name -> Printf.sprintf "unknown function: %s" name

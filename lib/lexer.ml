@@ -5,6 +5,8 @@ type token =
   | STAR
   | SLASH
   | CARET
+  | SIN
+  | COS
   | LPAREN
   | RPAREN
   | VAR of string
@@ -15,6 +17,8 @@ let string_of_token = function
   | MINUS -> "MINUS"
   | STAR -> "STAR"
   | CARET -> "CARET"
+  | SIN -> "SIN"
+  | COS -> "COS"
   | SLASH -> "SLASH"
   | LPAREN -> "LPAREN"
   | RPAREN -> "RPAREN"
@@ -79,7 +83,15 @@ let tokenize (input : string) : token list =
       String.sub input start_position (!end_position - start_position)
     in
 
-    scan !end_position (VAR identifier_text :: tokens_so_far)
+    (* A known function name becomes its own token; anything else is a variable. *)
+    let token =
+      match identifier_text with
+      | "sin" -> SIN
+      | "cos" -> COS
+      | _ -> VAR identifier_text
+    in
+
+    scan !end_position (token :: tokens_so_far)
   in
 
   (* Start the function *)

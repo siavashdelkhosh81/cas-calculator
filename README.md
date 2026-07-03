@@ -91,7 +91,7 @@ Anything else is parsed and evaluated as an expression.
 | Expansion / factoring                        | 🗺️ planned     |
 | Equation solving                             | 🗺️ planned     |
 
-Errors never crash the REPL — every failure is a typed code (`Invalid_char`, `Unexpected_token`, `Unbound_variable`, …) surfaced as a clean message:
+Errors never crash the RELP — every failure is a typed code (`Invalid_char`, `Unexpected_token`, `Unbound_variable`, …) surfaced as a message:
 
 ```
 ▸ 1.2.3
