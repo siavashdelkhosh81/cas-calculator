@@ -5,6 +5,10 @@ let listener (input : string) =
   match input with
   | "/help" -> List.iter (Calculator.Commands.help_command ()) ~f:print_endline
   | "/clear" -> Calculator.Commands.clear_command ()
+  | "/install_skill" -> (
+      match Calculator.Commands.install_skill () with
+      | Ok message -> print_endline message
+      | Error code -> print_endline ("error: " ^ Calculator.Calc_error.to_string code))
   | expr -> (
       match Calculator.Eval.evaluate expr with
       | Ok result -> print_endline ("= " ^ result)

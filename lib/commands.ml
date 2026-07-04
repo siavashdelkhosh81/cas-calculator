@@ -19,9 +19,31 @@ let help_command () =
 
 
 let install_skill () =
-  if (true) then Ok "Skills installed"
-  else
-    Error Calc_error.Failed_to_install
+  let supported_tools = [ ".claude"; ".cursor"; ".codex" ] in
+
+  match Sys.getenv "HOME" with
+  | None -> Error Calc_error.Failed_to_install
+  | Some home ->
+      let ( / ) = Stdlib.Filename.concat in
+
+      (* Keep only the tools the user actually has. *)
+      let found_tools =
+        List.filter supported_tools ~f:(fun tool ->
+            Stdlib.Sys.file_exists (home / tool))
+      in
+
+      (* Run through the list and install the skill. *)
+      (match found_tools with
+       | [] -> Error Calc_error.No_ai_tool_found
+       | tools -> (
+           try
+             List.iter tools ~f:(fun tool ->
+                 let skill_dir = home / tool / "skills" / "calculator" in
+                 Fs.make_dirs skill_dir;
+                 Stdio.Out_channel.write_all (skill_dir / "SKILL.md")
+                   ~data:Skill.skill_text);
+             Ok ("Skills installed for: " ^ String.concat ~sep:", " tools)
+           with _ -> Error Calc_error.Failed_to_install))
 
 (* Clear screen + scrollback, move cursor to home. *)
 let clear_command () =
