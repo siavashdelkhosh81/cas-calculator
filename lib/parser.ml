@@ -1,3 +1,4 @@
+open Base
 open Ast
 open Lexer
 
@@ -29,13 +30,13 @@ let parser (all_tokens : token list) : expr =
         let inner_expression = parse_expression () in
         (match peek () with
          | Some RPAREN -> consume ()
-         | _ -> raise (Error.Calc_error Missing_rparen));
+         | _ -> raise (Calc_error.Calc_error Missing_rparen));
         inner_expression
     | Some SIN -> consume (); Func ("sin", parse_factor ())
     | Some COS -> consume (); Func ("cos", parse_factor ())
     | Some SQRT -> consume (); Func ("sqrt", parse_factor ())
-    | None -> raise (Error.Calc_error Unexpected_end)
-    | Some other -> raise (Error.Calc_error (Unexpected_token (string_of_token other)))
+    | None -> raise (Calc_error.Calc_error Unexpected_end)
+    | Some other -> raise (Calc_error.Calc_error (Unexpected_token (string_of_token other)))
 
 
   and parse_power () =
@@ -76,5 +77,5 @@ let parser (all_tokens : token list) : expr =
 
   (match peek () with
    | None -> ()
-   | Some _ -> raise (Error.Calc_error Trailing_input));
+   | Some _ -> raise (Calc_error.Calc_error Trailing_input));
   parsed_tree

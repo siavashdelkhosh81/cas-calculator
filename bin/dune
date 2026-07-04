@@ -1,4 +1,4 @@
 (executable
  (public_name calculator)
  (name main)
- (libraries calculator))
+ (libraries base stdio calculator))

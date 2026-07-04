@@ -1,3 +1,5 @@
+open Base
+
 (* Supported calculator error codes. *)
 type error =
   | Invalid_char of char
@@ -8,6 +10,7 @@ type error =
   | Trailing_input
   | Unbound_variable of string
   | Unknown_function of string
+  | Failed_to_install
 
 (* Raised internally by the lexer, parser, and evaluator; caught at the
    evaluate boundary and turned into a result. *)
@@ -20,5 +23,6 @@ let to_string = function
   | Unexpected_end -> "unexpected end of input"
   | Missing_rparen -> "missing closing ')'"
   | Trailing_input -> "unexpected tokens after the expression"
+  | Failed_to_install -> "unexpected error when installing skill"
   | Unbound_variable name -> Printf.sprintf "unbound variable: %s" name
   | Unknown_function name -> Printf.sprintf "unknown function: %s" name

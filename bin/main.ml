@@ -1,20 +1,22 @@
-let listener (input:string) =
+open Base
+open Stdio
+
+let listener (input : string) =
   match input with
-  | "/q" -> raise End_of_file
-  | "/help" -> List.iter print_endline (Calculator.Commands.help_command ())
+  | "/help" -> List.iter (Calculator.Commands.help_command ()) ~f:print_endline
   | "/clear" -> Calculator.Commands.clear_command ()
   | expr -> (
       match Calculator.Eval.evaluate expr with
       | Ok result -> print_endline ("= " ^ result)
-      | Error code -> print_endline ("error: " ^ Calculator.Error.to_string code))
+      | Error code -> print_endline ("error: " ^ Calculator.Calc_error.to_string code))
 
-(* Handler and listenr *)
+(* Handler and listener *)
 let () =
   Calculator.Banner.print ();
-  try
-    while true do
-      Calculator.Banner.prompt ();
-      let input = input_line stdin in
-      listener input
-    done
-  with End_of_file -> Printf.printf "\nbye\n"
+  let rec loop () =
+    Calculator.Banner.prompt ();
+    match In_channel.input_line In_channel.stdin with
+    | None | Some "/q" -> printf "\nbye\n"
+    | Some input -> listener input; loop ()
+  in
+  loop ()

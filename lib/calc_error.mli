@@ -10,6 +10,7 @@ type error =
   | Trailing_input              (** extra tokens left after a complete expression *)
   | Unbound_variable of string  (** evaluator met a variable with no value *)
   | Unknown_function of string  (** a function name the evaluator doesn't implement *)
+  | Failed_to_install              (** failed to install the skill *)
 
 (** Raised internally by the lexer, parser, and evaluator. It is caught at the
     {!Eval.evaluate} boundary, so callers normally see a [result] instead. *)

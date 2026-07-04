@@ -1,3 +1,5 @@
+open Base
+
 (* ANSI escape helpers. Industrial calculator startup banner. *)
 
 let esc = "\027["
@@ -27,12 +29,12 @@ let logo =
    Every glyph used here is single-width, so code points = columns. *)
 let display_width s =
   let n = ref 0 in
-  String.iter (fun c -> if Char.code c land 0xC0 <> 0x80 then incr n) s;
+  String.iter s ~f:(fun c -> if Char.to_int c land 0xC0 <> 0x80 then Int.incr n);
   !n
 
 let inner = display_width logo.(0) + 2 (* one space padding each side *)
 
-let bar ch = String.concat "" (List.init inner (fun _ -> ch))
+let bar ch = String.concat ~sep:"" (List.init inner ~f:(fun _ -> ch))
 
 (* Emit a content row: [rendered] is the coloured text, [visible] its column
    count. Pads on the right so the closing border lines up. *)
@@ -48,11 +50,9 @@ let print () =
   let add = Buffer.add_string b in
   add "\n";
   add (Printf.sprintf "%s%s╔%s╗%s\n" bold rule (bar "═") reset);
-  Array.iteri
-    (fun i line ->
+  Array.iteri logo ~f:(fun i line ->
       let rendered = Printf.sprintf " %s%s %s" (fg gradient.(i)) line reset in
-      row b ~visible:(display_width line + 2) rendered)
-    logo;
+      row b ~visible:(display_width line + 2) rendered);
   add (Printf.sprintf "%s%s╠%s╣%s\n" bold rule (bar "═") reset);
   (* Status lines. *)
   let l1_plain = "  INDUSTRIAL CALCULATOR · v1.0.0 · arbitrary precision core" in
@@ -68,9 +68,9 @@ let print () =
   in
   row b ~visible:(display_width l2_plain) l2;
   add (Printf.sprintf "%s%s╚%s╝%s\n" bold rule (bar "═") reset);
-  print_string (Buffer.contents b);
-  flush stdout
+  Stdio.print_string (Buffer.contents b);
+  Stdio.Out_channel.flush Stdio.stdout
 
 let prompt () =
-  Printf.printf "\n%s▸%s " (bold ^ amber) reset;
-  flush stdout
+  Stdio.printf "\n%s▸%s " (bold ^ amber) reset;
+  Stdio.Out_channel.flush Stdio.stdout
