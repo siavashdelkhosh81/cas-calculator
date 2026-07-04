@@ -57,6 +57,10 @@ You'll get an interactive prompt:
 = 14
 ▸ (2 + 3) * 4
 = 20
+▸ 2 ^ 3 ^ 2
+= 512
+▸ sqrt(9) + cos(0)
+= 4
 ▸ /q
 bye
 ```
@@ -82,8 +86,9 @@ Anything else is parsed and evaluated as an expression.
 | `+`, `-`, `*`, `/`, `^` (power), parentheses  | ✅ done        |
 | Numeric evaluation                           | ✅ done        |
 | Typed, recoverable errors (`result`)         | ✅ done        |
+| Built-in functions (`sin`, `cos`, `sqrt`)    | ✅ done        |
 | Unary minus (`-5`, `-(x+1)`)                 | 🔜 next        |
-| Functions (`sin`, `cos`, `sqrt`, `log`, …)   | 🔜 next        |
+| More functions (`tan`, `log`, `exp`, …)      | 🔜 next        |
 | Variable bindings (`let x = 3`)              | 🔜 next        |
 | Exact rationals / bignums (no float error)   | 🗺️ planned     |
 | **Symbolic simplification** (`x + x → 2x`)   | 🗺️ planned     |
@@ -91,7 +96,7 @@ Anything else is parsed and evaluated as an expression.
 | Expansion / factoring                        | 🗺️ planned     |
 | Equation solving                             | 🗺️ planned     |
 
-Errors never crash the RELP — every failure is a typed code (`Invalid_char`, `Unexpected_token`, `Unbound_variable`, …) surfaced as a message:
+Errors never crash the REPL — every failure is a typed code (`Invalid_char`, `Unexpected_token`, `Unbound_variable`, `Unknown_function`, …) surfaced as a message:
 
 ```
 ▸ 1.2.3
@@ -116,7 +121,7 @@ input string  →  lexer  →  tokens  →  parser  →  tree (AST)  →  eval  
 |------------|-------------------|------------------------------------------------------------|
 | **Lexer**  | `lib/lexer.ml`    | turn the raw string into a flat list of tokens             |
 | **Parser** | `lib/parser.ml`   | recursive descent: tokens → an expression tree, honoring precedence and grouping |
-| **AST**    | `lib/ast.ml`      | the `expr` tree type (`Num`, `Var`, `Add`, `Sub`, `Mul`, `Div`, `Expo`) |
+| **AST**    | `lib/ast.ml`      | the `expr` tree type (`Num`, `Var`, `Add`, `Sub`, `Mul`, `Div`, `Expo`, `Func`) |
 | **Eval**   | `lib/eval.ml`     | walk the tree to a value; the future home of the CAS engine |
 | **Errors** | `lib/error.ml`    | shared error codes, raised internally, returned as `result`|
 
@@ -128,7 +133,7 @@ The parser is the heart of the front end. **An interactive, step-by-step visuali
 
 The path from "calculator" to "CAS", in order:
 
-1. **Complete the numeric calculator** — `-`, `/`, `^` done; remaining: unary minus, built-in functions, variable bindings.
+1. **Complete the numeric calculator** — `-`, `/`, `^` and functions (`sin`, `cos`, `sqrt`) done; remaining: unary minus, more functions, variable bindings.
 2. **Exact arithmetic** — replace `float` with rationals/bignums ([`zarith`](https://github.com/ocaml/Zarith)), so `1/3` stays `1/3`. A real CAS must be exact.
 3. **Simplification engine** — canonical forms, constant folding, identities (`x*1 → x`, `x + x → 2x`). This is the core of a CAS.
 4. **Differentiation** — symbolic `d/dx`, piped through the simplifier.
@@ -179,7 +184,7 @@ The architecture is deliberately layered: each stage has a small `.mli` interfac
 This is an early, open project — the best time to shape it. Good first contributions:
 
 - Add unary minus (`-5`, `-(x+1)`) — a new case in `parse_factor`.
-- Add a built-in function (`sqrt`, `sin`, …) end-to-end: lexer → parser → AST → eval.
+- Add another built-in function (`tan`, `log`, `exp`, …) — a keyword in the lexer, one case in `parse_factor`, one arm in `eval`. The `Func` AST node is reused, so nothing else changes.
 - Expand the test suite in `test/`.
 - Take on a roadmap item (open an issue first to coordinate).
 
