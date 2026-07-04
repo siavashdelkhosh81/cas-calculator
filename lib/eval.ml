@@ -15,6 +15,7 @@ let rec eval (tree : expr) : float =
       match name with
       | "sin" -> sin x
       | "cos" -> cos x
+      | "sqrt" -> sqrt x
       | _ -> raise (Error.Calc_error (Unknown_function name)))
 
 (* Lex, parse, and evaluate raw input, turning any failure into a result

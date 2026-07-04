@@ -5,6 +5,7 @@ type token =
   | STAR
   | SLASH
   | CARET
+  | SQRT
   | SIN
   | COS
   | LPAREN
@@ -17,6 +18,7 @@ let string_of_token = function
   | MINUS -> "MINUS"
   | STAR -> "STAR"
   | CARET -> "CARET"
+  | SQRT -> "SQRT"
   | SIN -> "SIN"
   | COS -> "COS"
   | SLASH -> "SLASH"
@@ -88,6 +90,7 @@ let tokenize (input : string) : token list =
       match identifier_text with
       | "sin" -> SIN
       | "cos" -> COS
+      | "sqrt" -> SQRT
       | _ -> VAR identifier_text
     in
 

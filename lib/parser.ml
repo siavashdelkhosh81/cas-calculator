@@ -33,6 +33,7 @@ let parser (all_tokens : token list) : expr =
         inner_expression
     | Some SIN -> consume (); Func ("sin", parse_factor ())
     | Some COS -> consume (); Func ("cos", parse_factor ())
+    | Some SQRT -> consume (); Func ("sqrt", parse_factor ())
     | None -> raise (Error.Calc_error Unexpected_end)
     | Some other -> raise (Error.Calc_error (Unexpected_token (string_of_token other)))
 
