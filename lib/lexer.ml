@@ -47,12 +47,12 @@ let tokenize (input : string) : token list =
       | '-' -> scan (position + 1) (MINUS :: tokens_so_far)
       | ')' -> scan (position + 1) (RPAREN :: tokens_so_far)
       | '(' -> scan (position + 1) (LPAREN :: tokens_so_far)
-      | c when Char.is_digit c || Char.equal c '.' -> read_number position tokens_so_far
-      | c when Char.is_alpha c -> read_identifier position tokens_so_far
+      | c when Char.is_digit c || Char.equal c '.' -> read_number ~start_position:position ~tokens_so_far:tokens_so_far
+      | c when Char.is_alpha c -> read_identifier ~start_position:position ~tokens_so_far:tokens_so_far
       | _ -> raise (Calc_error.Calc_error (Invalid_char character))
 
   (* Grab a run of digits (and one dot) as a single number token. *)
-  and read_number start_position tokens_so_far =
+  and read_number ~(start_position:int) ~(tokens_so_far: token list) =
     let end_position = ref start_position in
     while
       !end_position < length
@@ -70,7 +70,7 @@ let tokenize (input : string) : token list =
      | None -> raise (Calc_error.Calc_error (Invalid_number number_text)))
 
   (* Grab a run of letters as a single variable token. *)
-  and read_identifier start_position tokens_so_far =
+  and read_identifier ~(start_position: int) ~(tokens_so_far: token list) =
     let end_position = ref start_position in
 
     while !end_position < length && Char.is_alpha input.[!end_position] do

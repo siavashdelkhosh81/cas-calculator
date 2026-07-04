@@ -2,9 +2,10 @@ open Base
 
 (* Supported REPL commands, as (name, description) pairs. *)
 let commands =
-  [ ("/help", "show this list of commands")
-  ; ("/clear", "clear the screen")
-  ; ("/q", "quit the calculator")
+  [ ("/help", "Show this list of commands")
+  ; ("/clear", "Clear the screen")
+  ; ("/q", "Quit the calculator")
+  ; ("/install_skill", "Install AI Skills so your AI tools can use this for calculation")
   ]
 
 let help_command () =
