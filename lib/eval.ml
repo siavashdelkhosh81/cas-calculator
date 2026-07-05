@@ -10,7 +10,7 @@ let rec eval (tree : expr) : float =
   | Num value -> value
   | Add (left, right) -> eval left +. eval right
   | Sub (left, right) -> eval left -. eval right
-  | Var name -> raise (Calc_error.Calc_error (Unbound_variable name))
+  | Neg exp -> Float.neg (eval exp)
   | Func (name, arg) -> (
       let x = eval arg in
       match name with
@@ -18,6 +18,7 @@ let rec eval (tree : expr) : float =
       | "cos" -> Float.cos x
       | "sqrt" -> Float.sqrt x
       | _ -> raise (Calc_error.Calc_error (Unknown_function name)))
+  | Var name -> raise (Calc_error.Calc_error (Unbound_variable name))
 
 (* Lex, parse, and evaluate raw input, turning any failure into a result
    carrying a supported error code. *)

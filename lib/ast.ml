@@ -7,4 +7,5 @@ type expr =
   | Mul of expr * expr
   | Div of expr * expr
   | Expo of expr * expr
-  | Func of string * expr   (* a function call, e.g. Func ("sin", …) *)
+  | Func of string * expr
+  | Neg of expr
