@@ -5,9 +5,11 @@ description: Evaluate math expressions using the industrial calculator CLI
 
 # Calculator
 
-Pipe an expression to the `calculator` binary to evaluate it:
+Evaluate an expression in one shot with the `calculate` subcommand:
 
-    echo "1 + 2 * 3" | calculator
+    calculator calculate "1 + 2 * 3"
+
+Prints the bare result on stdout (exit 0), or an error on stderr (exit 1).
 
 Supported syntax:
 - operators: `+` `-` `*` `/` and `^` (exponent, right-associative)

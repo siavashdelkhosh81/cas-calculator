@@ -14,8 +14,8 @@ let listener (input : string) =
       | Ok result -> print_endline ("= " ^ result)
       | Error code -> print_endline ("error: " ^ Calculator.Calc_error.to_string code))
 
-(* Handler and listener *)
-let () =
+(* Interactive REPL: banner, then read-eval-print until /q or EOF. *)
+let repl () =
   Calculator.Banner.print ();
   let rec loop () =
     Calculator.Banner.prompt ();
@@ -24,3 +24,19 @@ let () =
     | Some input -> listener input; loop ()
   in
   loop ()
+
+
+let calculate (expression : string) =
+  match Calculator.Eval.evaluate expression with
+  | Ok result -> print_endline result
+  | Error code ->
+      eprintf "error: %s\n" (Calculator.Calc_error.to_string code);
+      Stdlib.exit 1
+
+let () =
+  match Sys.get_argv () with
+  | [| _ |] -> repl ()
+  | [| _; "calculate"; expression |] -> calculate expression
+  | _ ->
+      eprintf "usage:\n  calculator                        start the interactive REPL\n  calculator calculate \"<expr>\"     evaluate once and print the result\n";
+      Stdlib.exit 2
