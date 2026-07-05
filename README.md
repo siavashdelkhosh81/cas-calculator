@@ -61,17 +61,27 @@ You'll get an interactive prompt:
 = 512
 ▸ sqrt(9) + cos(0)
 = 4
+▸ -(2 + 3) * 4
+= -20
 ▸ /q
 bye
 ```
 
+Or evaluate a single expression without entering the REPL:
+
+```bash
+dune exec -- calculator calculate "-1 + 2"
+# 1
+```
+
 ### REPL commands
 
-| Command  | Action                          |
-|----------|---------------------------------|
-| `/help`  | list available commands         |
-| `/clear` | clear the screen                |
-| `/q`     | quit                            |
+| Command          | Action                                                    |
+|------------------|-----------------------------------------------------------|
+| `/help`          | list available commands                                   |
+| `/clear`         | clear the screen                                          |
+| `/install_skill` | install the calculator skill into AI tools (`~/.claude`, …) |
+| `/q`             | quit                                                      |
 
 Anything else is parsed and evaluated as an expression.
 
@@ -87,7 +97,7 @@ Anything else is parsed and evaluated as an expression.
 | Numeric evaluation                           | ✅ done        |
 | Typed, recoverable errors (`result`)         | ✅ done        |
 | Built-in functions (`sin`, `cos`, `sqrt`)    | ✅ done        |
-| Unary minus (`-5`, `-(x+1)`)                 | 🔜 next        |
+| Unary minus (`-5`, `-(2+3)`, `2 - -3`)       | ✅ done        |
 | More functions (`tan`, `log`, `exp`, …)      | 🔜 next        |
 | Variable bindings (`let x = 3`)              | 🔜 next        |
 | Exact rationals / bignums (no float error)   | 🗺️ planned     |
@@ -121,9 +131,9 @@ input string  →  lexer  →  tokens  →  parser  →  tree (AST)  →  eval  
 |------------|-------------------|------------------------------------------------------------|
 | **Lexer**  | `lib/lexer.ml`    | turn the raw string into a flat list of tokens             |
 | **Parser** | `lib/parser.ml`   | recursive descent: tokens → an expression tree, honoring precedence and grouping |
-| **AST**    | `lib/ast.ml`      | the `expr` tree type (`Num`, `Var`, `Add`, `Sub`, `Mul`, `Div`, `Expo`, `Func`) |
+| **AST**    | `lib/ast.ml`      | the `expr` tree type (`Num`, `Var`, `Add`, `Sub`, `Mul`, `Div`, `Expo`, `Neg`, `Func`) |
 | **Eval**   | `lib/eval.ml`     | walk the tree to a value; the future home of the CAS engine |
-| **Errors** | `lib/error.ml`    | shared error codes, raised internally, returned as `result`|
+| **Errors** | `lib/calc_error.ml` | shared error codes, raised internally, returned as `result`|
 
 The parser is the heart of the front end. **An interactive, step-by-step visualization of how it builds the tree lives in [`docs/parser-explained.html`](docs/parser-explained.html)** — open it in a browser to watch the call stack and AST grow token by token.
 
@@ -133,7 +143,7 @@ The parser is the heart of the front end. **An interactive, step-by-step visuali
 
 The path from "calculator" to "CAS", in order:
 
-1. **Complete the numeric calculator** — `-`, `/`, `^` and functions (`sin`, `cos`, `sqrt`) done; remaining: unary minus, more functions, variable bindings.
+1. **Complete the numeric calculator** — `-`, `/`, `^`, unary minus, and functions (`sin`, `cos`, `sqrt`) done; remaining: more functions, variable bindings.
 2. **Exact arithmetic** — replace `float` with rationals/bignums ([`zarith`](https://github.com/ocaml/Zarith)), so `1/3` stays `1/3`. A real CAS must be exact.
 3. **Simplification engine** — canonical forms, constant folding, identities (`x*1 → x`, `x + x → 2x`). This is the core of a CAS.
 4. **Differentiation** — symbolic `d/dx`, piped through the simplifier.
@@ -155,9 +165,11 @@ Contributions toward any of these are very welcome — see below.
 │   ├── parser.ml        # tokens  → AST
 │   ├── ast.ml           # the expression tree type
 │   ├── eval.ml          # AST     → result   (future CAS engine)
-│   ├── error.ml         # shared error codes
+│   ├── calc_error.ml    # shared error codes
 │   ├── banner.ml        # REPL banner / prompt
-│   └── commands.ml      # /help, /clear, …
+│   ├── commands.ml      # /help, /clear, /install_skill, …
+│   ├── skill.ml         # the SKILL.md document /install_skill writes
+│   └── fs.ml            # filesystem helpers (mkdir -p)
 ├── docs/
 │   └── parser-explained.html   # interactive parser visualizer
 ├── test/
@@ -183,7 +195,6 @@ The architecture is deliberately layered: each stage has a small `.mli` interfac
 
 This is an early, open project — the best time to shape it. Good first contributions:
 
-- Add unary minus (`-5`, `-(x+1)`) — a new case in `parse_factor`.
 - Add another built-in function (`tan`, `log`, `exp`, …) — a keyword in the lexer, one case in `parse_factor`, one arm in `eval`. The `Func` AST node is reused, so nothing else changes.
 - Expand the test suite in `test/`.
 - Take on a roadmap item (open an issue first to coordinate).
