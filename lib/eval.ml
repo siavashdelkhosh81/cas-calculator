@@ -16,6 +16,8 @@ let rec eval (tree : expr) : float =
       match name with
       | "sin" -> Float.sin x
       | "cos" -> Float.cos x
+      | "tan" -> Float.tan x
+      | "log" -> Float.log x
       | "sqrt" -> Float.sqrt x
       | _ -> raise (Calc_error.Calc_error (Unknown_function name)))
   | Var name -> raise (Calc_error.Calc_error (Unbound_variable name))

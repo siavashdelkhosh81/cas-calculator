@@ -10,6 +10,8 @@ type token =
   | SQRT
   | SIN
   | COS
+  | LOG
+  | TAN
   | LPAREN
   | RPAREN
   | VAR of string
@@ -22,7 +24,9 @@ let string_of_token = function
   | CARET -> "CARET"
   | SQRT -> "SQRT"
   | SIN -> "SIN"
+  | LOG -> "LOG"
   | COS -> "COS"
+  | TAN -> "TAN"
   | SLASH -> "SLASH"
   | LPAREN -> "LPAREN"
   | RPAREN -> "RPAREN"
@@ -86,6 +90,8 @@ let tokenize (input : string) : token list =
       match identifier_text with
       | "sin" -> SIN
       | "cos" -> COS
+      | "tan" -> TAN
+      | "log" -> LOG
       | "sqrt" -> SQRT
       | _ -> VAR identifier_text
     in
