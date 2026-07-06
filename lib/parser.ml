@@ -36,6 +36,7 @@ let parser (all_tokens : token list) : expr =
     | Some COS -> consume (); Func ("cos", parse_factor ())
     | Some TAN -> consume (); Func ("tan", parse_factor ())
     | Some LOG -> consume (); Func ("log", parse_factor ())
+    | Some LN -> consume (); Func ("ln", parse_factor ())
     | Some SQRT -> consume (); Func ("sqrt", parse_factor ())
     | Some MINUS -> consume (); Neg (parse_power ())
     | None -> raise (Calc_error.Calc_error Unexpected_end)
