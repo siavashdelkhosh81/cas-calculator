@@ -96,9 +96,8 @@ Anything else is parsed and evaluated as an expression.
 | `+`, `-`, `*`, `/`, `^` (power), parentheses  | ✅ done        |
 | Numeric evaluation                           | ✅ done        |
 | Typed, recoverable errors (`result`)         | ✅ done        |
-| Built-in functions (`sin`, `cos`, `sqrt`)    | ✅ done        |
+| Built-in functions (`sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh`, `sqrt`, `exp`, `ln`, `log`/`log10`, `log2`, `abs`, `floor`, `ceil`, `round`) | ✅ done        |
 | Unary minus (`-5`, `-(2+3)`, `2 - -3`)       | ✅ done        |
-| More functions (`tan`, `log`, `exp`, …)      | 🔜 next        |
 | Variable bindings (`let x = 3`)              | 🔜 next        |
 | Exact rationals / bignums (no float error)   | 🗺️ planned     |
 | **Symbolic simplification** (`x + x → 2x`)   | 🗺️ planned     |
@@ -143,7 +142,7 @@ The parser is the heart of the front end. **An interactive, step-by-step visuali
 
 The path from "calculator" to "CAS", in order:
 
-1. **Complete the numeric calculator** — `-`, `/`, `^`, unary minus, and functions (`sin`, `cos`, `sqrt`) done; remaining: more functions, variable bindings.
+1. **Complete the numeric calculator** — `-`, `/`, `^`, unary minus, and a full set of functions (trig, inverse trig, hyperbolic, logs, `exp`, `sqrt`, `abs`, rounding) done; remaining: variable bindings.
 2. **Exact arithmetic** — replace `float` with rationals/bignums ([`zarith`](https://github.com/ocaml/Zarith)), so `1/3` stays `1/3`. A real CAS must be exact.
 3. **Simplification engine** — canonical forms, constant folding, identities (`x*1 → x`, `x + x → 2x`). This is the core of a CAS.
 4. **Differentiation** — symbolic `d/dx`, piped through the simplifier.

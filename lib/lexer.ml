@@ -12,8 +12,18 @@ type token =
   | COS
   | LOG
   | LN
+  | LOG2
+  | EXP
   | ABS
   | FLOOR
+  | CEIL
+  | ROUND
+  | ASIN
+  | ACOS
+  | ATAN
+  | SINH
+  | COSH
+  | TANH
   | TAN
   | LPAREN
   | RPAREN
@@ -29,8 +39,18 @@ let string_of_token = function
   | SIN -> "SIN"
   | LOG -> "LOG"
   | LN -> "LN"
+  | LOG2 -> "LOG2"
+  | EXP -> "EXP"
   | FLOOR -> "FLOOR"
+  | CEIL -> "CEIL"
+  | ROUND -> "ROUND"
   | ABS -> "ABS"
+  | ASIN -> "ASIN"
+  | ACOS -> "ACOS"
+  | ATAN -> "ATAN"
+  | SINH -> "SINH"
+  | COSH -> "COSH"
+  | TANH -> "TANH"
   | COS -> "COS"
   | TAN -> "TAN"
   | SLASH -> "SLASH"
@@ -79,11 +99,12 @@ let tokenize (input : string) : token list =
      | Some value -> scan !end_position (NUM value :: tokens_so_far)
      | None -> raise (Calc_error.Calc_error (Invalid_number number_text)))
 
-  (* Grab a run of letters as a single variable token. *)
+  (* Grab a run of letters (digits allowed after the first letter, so names
+     like log2 and log10 work) as a single identifier token. *)
   and read_identifier ~(start_position: int) ~(tokens_so_far: token list) =
     let end_position = ref start_position in
 
-    while !end_position < length && Char.is_alpha input.[!end_position] do
+    while !end_position < length && Char.is_alphanum input.[!end_position] do
       Int.incr end_position
     done;
 
@@ -98,9 +119,20 @@ let tokenize (input : string) : token list =
       | "cos" -> COS
       | "tan" -> TAN
       | "log" -> LOG
+      | "log10" -> LOG (* alias: log is already base 10 *)
       | "ln" -> LN
+      | "log2" -> LOG2
+      | "exp" -> EXP
       | "abs" -> ABS
       | "floor" -> FLOOR
+      | "ceil" -> CEIL
+      | "round" -> ROUND
+      | "asin" -> ASIN
+      | "acos" -> ACOS
+      | "atan" -> ATAN
+      | "sinh" -> SINH
+      | "cosh" -> COSH
+      | "tanh" -> TANH
       | "sqrt" -> SQRT
       | _ -> VAR identifier_text
     in

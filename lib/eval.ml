@@ -19,8 +19,18 @@ let rec eval (tree : expr) : float =
       | "tan" -> Float.tan x
       | "log" -> Float.log10 x
       | "ln" -> Float.log x
+      | "log2" -> Float.log x /. Float.log 2.0
+      | "exp" -> Float.exp x
       | "abs" -> Float.abs x
       | "floor" -> Float.round_down x
+      | "ceil" -> Float.round_up x
+      | "round" -> Float.round_nearest x
+      | "asin" -> Float.asin x
+      | "acos" -> Float.acos x
+      | "atan" -> Float.atan x
+      | "sinh" -> Float.sinh x
+      | "cosh" -> Float.cosh x
+      | "tanh" -> Float.tanh x
       | "sqrt" -> Float.sqrt x
       | _ -> raise (Calc_error.Calc_error (Unknown_function name)))
   | Var name -> raise (Calc_error.Calc_error (Unbound_variable name))
