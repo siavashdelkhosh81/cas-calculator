@@ -12,6 +12,8 @@ type token =
   | COS
   | LOG
   | LN
+  | ABS
+  | FLOOR
   | TAN
   | LPAREN
   | RPAREN
@@ -27,6 +29,8 @@ let string_of_token = function
   | SIN -> "SIN"
   | LOG -> "LOG"
   | LN -> "LN"
+  | FLOOR -> "FLOOR"
+  | ABS -> "ABS"
   | COS -> "COS"
   | TAN -> "TAN"
   | SLASH -> "SLASH"
@@ -95,6 +99,8 @@ let tokenize (input : string) : token list =
       | "tan" -> TAN
       | "log" -> LOG
       | "ln" -> LN
+      | "abs" -> ABS
+      | "floor" -> FLOOR
       | "sqrt" -> SQRT
       | _ -> VAR identifier_text
     in
