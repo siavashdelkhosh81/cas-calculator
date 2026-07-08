@@ -36,3 +36,6 @@ setup.log
 _opam/
 
 docs
+
+# Private PRDs (local only)
+prds/
