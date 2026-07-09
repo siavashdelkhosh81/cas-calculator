@@ -1,18 +1,19 @@
 open Base
 open Ast
 
-(* Compute the numeric value of an expression tree. *)
-let rec eval (tree : expr) : float =
+(* Compute the numeric value of an expression tree, looking up variables in
+   [env]. *)
+let rec eval ~(env : float Map.M(String).t) (tree : expr) : float =
   match tree with
-  | Mul (left, right) -> eval left *. eval right
-  | Expo (left, right) -> Float.( ** ) (eval left) (eval right)
-  | Div (left, right) -> eval left /. eval right
+  | Mul (left, right) -> eval ~env left *. eval ~env right
+  | Expo (left, right) -> Float.( ** ) (eval ~env left) (eval ~env right)
+  | Div (left, right) -> eval ~env left /. eval ~env right
   | Num value -> value
-  | Add (left, right) -> eval left +. eval right
-  | Sub (left, right) -> eval left -. eval right
-  | Neg exp -> Float.neg (eval exp)
+  | Add (left, right) -> eval ~env left +. eval ~env right
+  | Sub (left, right) -> eval ~env left -. eval ~env right
+  | Neg exp -> Float.neg (eval ~env exp)
   | Func (name, arg) -> (
-      let x = eval arg in
+      let x = eval ~env arg in
       match name with
       | "sin" -> Float.sin x
       | "cos" -> Float.cos x
@@ -33,14 +34,21 @@ let rec eval (tree : expr) : float =
       | "tanh" -> Float.tanh x
       | "sqrt" -> Float.sqrt x
       | _ -> raise (Calc_error.Calc_error (Unknown_function name)))
-  | Var name -> raise (Calc_error.Calc_error (Unbound_variable name))
+  | Var name -> (
+      match Map.find env name with
+      | Some value -> value
+      | None -> raise (Calc_error.Calc_error (Unbound_variable name)))
 
 (* Lex, parse, and evaluate raw input, turning any failure into a result
    carrying a supported error code. *)
-let evaluate (input : string) : (string, Calc_error.error) Result.t =
+let evaluate ~(env : float Map.M(String).t) ~(input : string)
+       : (string * float Map.M(String).t, Calc_error.error) Result.t =
   try
     let tokens = Lexer.tokenize input in
     match Parser.parse tokens with
-    | Let_binding (name, expr_tree) -> Ok (Printf.sprintf "%s = %g" name (eval expr_tree))
-    | Experssion expr_tree ->  Ok (Printf.sprintf "%g" (eval expr_tree))
+    | Let_binding (name, expr_tree) ->
+      let value = eval ~env expr_tree in
+      let new_env = Map.set env ~key:name ~data:value in
+      Ok ((Printf.sprintf "%s = %g" name (value)), new_env)
+    | Expression expr_tree -> Ok ((Printf.sprintf "%g" (eval ~env expr_tree)), env)
   with Calc_error.Calc_error err -> Error err

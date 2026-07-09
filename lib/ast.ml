@@ -12,5 +12,5 @@ type expr =
 
 
 type statement =
-  | Experssion of expr
+  | Expression of expr
   | Let_binding of string * expr

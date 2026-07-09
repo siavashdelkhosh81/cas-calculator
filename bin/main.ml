@@ -1,34 +1,43 @@
 open Base
 open Stdio
 
-let listener (input : string) =
+(* Turn one line of user input into the text to display plus the environment
+   to carry into the next iteration. Returns "" when there is nothing to
+   print (e.g. /clear, which redraws the screen itself). *)
+let listener ~env (input : string) : string * float Map.M(String).t =
   match input with
-  | "/help" -> List.iter (Calculator.Commands.help_command ()) ~f:print_endline
-  | "/clear" -> Calculator.Commands.clear_command ()
+  | "/help" -> (String.concat ~sep:"\n" (Calculator.Commands.help_command ()), env)
+  | "/clear" -> Calculator.Commands.clear_command (); ("", env)
   | "/install_skill" -> (
       match Calculator.Commands.install_skill () with
-      | Ok message -> print_endline message
-      | Error code -> print_endline ("error: " ^ Calculator.Calc_error.to_string code))
-  | expr -> (
-      match Calculator.Eval.evaluate expr with
-      | Ok result -> print_endline ("= " ^ result)
-      | Error code -> print_endline ("error: " ^ Calculator.Calc_error.to_string code))
+      | Ok message -> (message, env)
+      | Error code -> ("error: " ^ Calculator.Calc_error.to_string code, env))
+  | command_input -> (
+      match Calculator.Eval.evaluate ~env ~input:command_input with
+      | Ok (result, new_env) -> ("= " ^ result, new_env)
+      | Error code -> ("error: " ^ Calculator.Calc_error.to_string code, env))
 
 (* Interactive REPL: banner, then read-eval-print until /q or EOF. *)
 let repl () =
   Calculator.Banner.print ();
-  let rec loop () =
+  let rec loop env =
     Calculator.Banner.prompt ();
     match In_channel.input_line In_channel.stdin with
     | None | Some "/q" -> printf "\nbye\n"
-    | Some input -> listener input; loop ()
+    | Some input ->
+        let output, env = listener ~env input in
+        (match output with
+         | "" -> ()
+         | output -> print_endline output);
+        loop env
   in
-  loop ()
+  loop (Map.empty (module String))
 
 
 let calculate (expression : string) =
-  match Calculator.Eval.evaluate expression with
-  | Ok result -> print_endline result
+  let env = Map.empty(module String) in
+  match Calculator.Eval.evaluate ~env:env ~input:expression with
+  | Ok (result, env) -> print_endline result
   | Error code ->
       eprintf "error: %s\n" (Calculator.Calc_error.to_string code);
       Stdlib.exit 1
