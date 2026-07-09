@@ -9,6 +9,8 @@ type token =
   | CARET
   | SQRT
   | SIN
+  | LET
+  | EQUALS
   | COS
   | LOG
   | LN
@@ -48,6 +50,8 @@ let string_of_token = function
   | ASIN -> "ASIN"
   | ACOS -> "ACOS"
   | ATAN -> "ATAN"
+  | LET -> "LET"
+  | EQUALS -> "EQUALS"
   | SINH -> "SINH"
   | COSH -> "COSH"
   | TANH -> "TANH"
@@ -72,6 +76,7 @@ let tokenize (input : string) : token list =
       | ' ' -> scan (position + 1) tokens_so_far (* skip whitespace *)
       | '+' -> scan (position + 1) (PLUS :: tokens_so_far)
       | '*' -> scan (position + 1) (STAR :: tokens_so_far)
+      | '=' -> scan (position + 1) (EQUALS :: tokens_so_far)
       | '^' -> scan (position + 1) (CARET :: tokens_so_far)
       | '/' -> scan (position + 1) (SLASH :: tokens_so_far)
       | '-' -> scan (position + 1) (MINUS :: tokens_so_far)
@@ -134,6 +139,7 @@ let tokenize (input : string) : token list =
       | "cosh" -> COSH
       | "tanh" -> TANH
       | "sqrt" -> SQRT
+      | "let" -> LET
       | _ -> VAR identifier_text
     in
 

@@ -40,6 +40,7 @@ let rec eval (tree : expr) : float =
 let evaluate (input : string) : (string, Calc_error.error) Result.t =
   try
     let tokens = Lexer.tokenize input in
-    let tree = Parser.parser tokens in
-    Ok (Printf.sprintf "%g" (eval tree))
+    match Parser.parse tokens with
+    | Let_binding (name, expr_tree) -> Ok (Printf.sprintf "%s = %g" name (eval expr_tree))
+    | Experssion expr_tree ->  Ok (Printf.sprintf "%g" (eval expr_tree))
   with Calc_error.Calc_error err -> Error err

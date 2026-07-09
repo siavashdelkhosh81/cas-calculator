@@ -2,6 +2,8 @@ open Base
 open Ast
 open Lexer
 
+
+
 let parser (all_tokens : token list) : expr =
   let remaining_tokens = ref all_tokens in
 
@@ -95,3 +97,9 @@ let parser (all_tokens : token list) : expr =
    | None -> ()
    | Some _ -> raise (Calc_error.Calc_error Trailing_input));
   parsed_tree
+
+
+let parse (all_tokens: token list) : statement =
+  match all_tokens with
+  | LET :: VAR name :: EQUALS :: rest ->  Let_binding (name, parser rest)
+  | all -> Experssion (parser all)

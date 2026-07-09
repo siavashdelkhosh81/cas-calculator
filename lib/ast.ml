@@ -9,3 +9,8 @@ type expr =
   | Expo of expr * expr
   | Func of string * expr
   | Neg of expr
+
+
+type statement =
+  | Experssion of expr
+  | Let_binding of string * expr
