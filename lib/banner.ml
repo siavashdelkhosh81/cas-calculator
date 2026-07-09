@@ -47,15 +47,18 @@ let row buf ~edge ~visible rendered =
     (Printf.sprintf "%s║%s%s%s%s║%s\n" (bold ^ edge) reset rendered
        (String.make pad ' ') (bold ^ edge) reset)
 
-let print () =
+(* Render the full banner with the gradient rotated by [offset] rows.
+   Offset 0 is the resting state; other offsets are animation frames. *)
+let render ~offset =
   let b = Buffer.create 1024 in
   let add = Buffer.add_string b in
   let last = Array.length gradient - 1 in
+  let shade i = fg gradient.((i + offset) % Array.length gradient) in
   add "\n";
   (* Top border in the brightest shade; it darkens row by row from here. *)
-  add (Printf.sprintf "%s%s╔%s╗%s\n" bold (fg gradient.(0)) (bar "═") reset);
+  add (Printf.sprintf "%s%s╔%s╗%s\n" bold (shade 0) (bar "═") reset);
   Array.iteri logo ~f:(fun i line ->
-      let shade = fg gradient.(i) in
+      let shade = shade i in
       let rendered = Printf.sprintf " %s%s %s" shade line reset in
       row b ~edge:shade ~visible:(display_width line + 2) rendered);
   add (Printf.sprintf "%s%s╠%s╣%s\n" bold deep (bar "═") reset);
@@ -72,9 +75,43 @@ let print () =
       (accent ^ bold) reset dim (accent ^ bold) reset dim reset
   in
   row b ~edge:deep ~visible:(display_width l2_plain) l2;
-  add (Printf.sprintf "%s%s╚%s╝%s\n" bold (fg gradient.(last)) (bar "═") reset);
-  Stdio.print_string (Buffer.contents b);
+  add (Printf.sprintf "%s%s╚%s╝%s\n" bold (shade last) (bar "═") reset);
+  Buffer.contents b
+
+let print_flush s =
+  Stdio.print_string s;
   Stdio.Out_channel.flush Stdio.stdout
+
+let print () = print_flush (render ~offset:0)
+
+(* Shimmer: redraw the banner with the gradient rotated one step per frame,
+   walking the offset down to 0 so the last frame is the resting banner.
+   Skipped when stdout is not a tty (piped output gets the static banner). *)
+let animate () =
+  if not (Unix.isatty Unix.stdout) then print ()
+  else begin
+    let hide_cursor = esc ^ "?25l" and show_cursor = esc ^ "?25h" in
+    let steps = Array.length gradient in
+    let frames = 3 * steps in
+    (* Make Ctrl-C raise so [protect] can restore the cursor first. *)
+    Stdlib.Sys.catch_break true;
+    Exn.protect
+      ~f:(fun () ->
+        print_flush hide_cursor;
+        for frame = frames downto 0 do
+          let s = render ~offset:(frame % steps) in
+          print_flush s;
+          if frame > 0 then begin
+            Unix.sleepf 0.06;
+            (* Cursor back to the top of the banner to draw the next frame. *)
+            let lines = String.count s ~f:(Char.equal '\n') in
+            print_flush (Printf.sprintf "%s%dA" esc lines)
+          end
+        done)
+      ~finally:(fun () ->
+        print_flush show_cursor;
+        Stdlib.Sys.catch_break false)
+  end
 
 let prompt () =
   Stdio.printf "\n%s▸%s " (bold ^ accent) reset;

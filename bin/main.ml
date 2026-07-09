@@ -19,7 +19,7 @@ let listener ~env (input : string) : string * float Map.M(String).t =
 
 (* Interactive REPL: banner, then read-eval-print until /q or EOF. *)
 let repl () =
-  Calculator.Banner.print ();
+  Calculator.Banner.animate ();
   let rec loop env =
     Calculator.Banner.prompt ();
     match In_channel.input_line In_channel.stdin with
