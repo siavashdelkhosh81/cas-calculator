@@ -99,7 +99,7 @@ Anything else is parsed and evaluated as an expression.
 | Built-in functions (`sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh`, `sqrt`, `exp`, `ln`, `log`/`log10`, `log2`, `abs`, `floor`, `ceil`, `round`) | ✅ done        |
 | Unary minus (`-5`, `-(2+3)`, `2 - -3`)       | ✅ done        |
 | Variable bindings (`let x = 3`)              | ✅ done        |
-| Exact rationals / bignums (no float error)   | 🗺️ planned     |
+| Exact rationals / bignums (no float error)   | 🗺️ Next     |
 | **Symbolic simplification** (`x + x → 2x`)   | 🗺️ planned     |
 | **Differentiation** (`d/dx`)                 | 🗺️ planned     |
 | Expansion / factoring                        | 🗺️ planned     |
