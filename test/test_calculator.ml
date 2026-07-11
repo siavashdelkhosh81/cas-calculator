@@ -41,6 +41,61 @@ let check_session ~inputs ~expected =
         expected;
       Int.incr failures
 
+(* Check that [input] renders exactly as [expected] — used for exact
+   arithmetic, where the output string itself (no float noise) is the point. *)
+let check_exact ~input ~expected =
+  let env = Map.empty (module String) in
+  match Calculator.Eval.evaluate ~env ~input with
+  | Ok (text, _env) ->
+      if not (String.equal text expected) then begin
+        Stdlib.Printf.printf "FAIL: %s = %s, expected %s\n" input text expected;
+        Int.incr failures
+      end
+  | Error err ->
+      Stdlib.Printf.printf "FAIL: %s returned error %s, expected %s\n" input
+        (Calculator.Calc_error.to_string err)
+        expected;
+      Int.incr failures
+
+(* Evaluate [inputs] in order, threading the environment, and check that the
+   last one renders exactly as [expected]. *)
+let check_session_exact ~inputs ~expected =
+  let env = Map.empty (module String) in
+  let final =
+    List.fold inputs ~init:(Ok ("", env)) ~f:(fun acc input ->
+        match acc with
+        | Error _ as err -> err
+        | Ok (_, env) -> Calculator.Eval.evaluate ~env ~input)
+  in
+  let label = String.concat ~sep:"; " inputs in
+  match final with
+  | Ok (text, _env) ->
+      if not (String.equal text expected) then begin
+        Stdlib.Printf.printf "FAIL: %s = %s, expected %s\n" label text expected;
+        Int.incr failures
+      end
+  | Error err ->
+      Stdlib.Printf.printf "FAIL: %s returned error %s, expected %s\n" label
+        (Calculator.Calc_error.to_string err)
+        expected;
+      Int.incr failures
+
+(* Check that [input] fails with exactly [expected_error]. *)
+let check_error ~input ~expected_error =
+  let env = Map.empty (module String) in
+  match Calculator.Eval.evaluate ~env ~input with
+  | Error err ->
+      if not (Poly.equal err expected_error) then begin
+        Stdlib.Printf.printf "FAIL: %s returned error %s, expected %s\n" input
+          (Calculator.Calc_error.to_string err)
+          (Calculator.Calc_error.to_string expected_error);
+        Int.incr failures
+      end
+  | Ok (text, _) ->
+      Stdlib.Printf.printf "FAIL: %s = %s, expected error %s\n" input text
+        (Calculator.Calc_error.to_string expected_error);
+      Int.incr failures
+
 (* Check that [input] fails with [Unbound_variable] on an empty environment. *)
 let check_unbound ~input =
   let env = Map.empty (module String) in
@@ -90,6 +145,34 @@ let () =
   check_session ~inputs:[ "let x = 2"; "let y = x ^ 3"; "y - x" ] ~expected:6.0;
   check_session ~inputs:[ "let x = 1"; "let x = 10"; "x" ] ~expected:10.0;
   check_unbound ~input:"x + 1";
+
+  (* exact arithmetic (PRD 2 edge-case table) *)
+  check_exact ~input:"1/3 + 1/6" ~expected:"1/2";
+  check_exact ~input:"0.1 + 0.2" ~expected:"3/10";
+  check_exact ~input:"2^100" ~expected:"1267650600228229401496703205376";
+  check_exact ~input:"2^-2" ~expected:"1/4";
+  check_exact ~input:"(1/2)^3" ~expected:"1/8";
+  check_exact ~input:"10/2" ~expected:"5";
+  check_exact ~input:"floor(7/2)" ~expected:"3";
+  check_exact ~input:"100000000000000000000 + 1"
+    ~expected:"100000000000000000001";
+  check_exact ~input:"0.25" ~expected:"1/4";
+  check_exact ~input:"sqrt 9" ~expected:"3";
+  check_exact ~input:"sqrt(9/4)" ~expected:"3/2";
+  check_exact ~input:"1/3 * 3" ~expected:"1";
+  check_error ~input:"1/0"
+    ~expected_error:Calculator.Calc_error.Division_by_zero;
+  check_error ~input:"1 / sin 0"
+    ~expected_error:Calculator.Calc_error.Division_by_zero;
+  check_error ~input:"1.2.3"
+    ~expected_error:(Calculator.Calc_error.Invalid_number "1.2.3");
+  check ~input:"sin(1) + 1" ~expected:(Float.sin 1.0 +. 1.0);
+  check ~input:"2^0.5" ~expected:(Float.sqrt 2.0);
+  check ~input:"sqrt(9) + cos(0)" ~expected:4.0;
+
+  (* exact values flow through let bindings *)
+  check_session_exact ~inputs:[ "let x = 1/3"; "x * 3" ] ~expected:"1";
+  check_session_exact ~inputs:[ "let x = 1/3"; "x + x" ] ~expected:"2/3";
 
   if !failures > 0 then begin
     Stdlib.Printf.printf "%d test(s) failed\n" !failures;

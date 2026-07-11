@@ -19,7 +19,7 @@
  (name calculator)
  (synopsis "A short synopsis")
  (description "A longer description")
- (depends ocaml base stdio)
+ (depends ocaml base stdio zarith)
  (tags
   ("add topics" "to describe" your project)))
 

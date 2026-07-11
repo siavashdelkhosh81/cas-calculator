@@ -12,6 +12,7 @@ type error =
   | Unknown_function of string  (** a function name the evaluator doesn't implement *)
   | Failed_to_install           (** failed to install the skill *)
   | No_ai_tool_found            (** no supported AI tool directory in home *)
+  | Division_by_zero            (** divisor evaluated to zero *)
 
 (** Raised internally by the lexer, parser, and evaluator. It is caught at the
     {!Eval.evaluate} boundary, so callers normally see a [result] instead. *)

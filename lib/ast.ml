@@ -1,6 +1,7 @@
-(* The expression tree. *)
+(* The expression tree. A literal in source text is always exact, so [Num]
+   holds a rational; approximation only appears at evaluation time. *)
 type expr =
-  | Num of float
+  | Num of Q.t
   | Var of string
   | Add of expr * expr
   | Sub of expr * expr

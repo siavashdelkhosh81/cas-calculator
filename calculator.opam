@@ -14,6 +14,7 @@ depends: [
   "ocaml"
   "base"
   "stdio"
+  "zarith"
   "odoc" {with-doc}
 ]
 build: [

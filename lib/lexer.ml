@@ -1,7 +1,7 @@
 open Base
 
 type token =
-  | NUM of float
+  | NUM of Q.t
   | PLUS
   | MINUS
   | STAR
@@ -32,7 +32,7 @@ type token =
   | VAR of string
 
 let string_of_token = function
-  | NUM n -> Printf.sprintf "NUM %g" n
+  | NUM q -> Printf.sprintf "NUM %s" (Q.to_string q)
   | PLUS -> "PLUS"
   | MINUS -> "MINUS"
   | STAR -> "STAR"
@@ -100,9 +100,31 @@ let tokenize (input : string) : token list =
       String.sub input ~pos:start_position ~len:(!end_position - start_position)
     in
 
-    (match Float.of_string_opt number_text with
-     | Some value -> scan !end_position (NUM value :: tokens_so_far)
-     | None -> raise (Calc_error.Calc_error (Invalid_number number_text)))
+    (* Convert the literal to an exact rational — never through float, so
+       "0.1" is exactly 1/10. Strip the dot, count the digits after it (k),
+       and divide by 10^k: "0.25" -> 25/100 -> 1/4. *)
+    let invalid () =
+      raise (Calc_error.Calc_error (Invalid_number number_text))
+    in
+    let value =
+      match String.index number_text '.' with
+      | None -> Q.of_bigint (Z.of_string number_text)
+      | Some dot_index ->
+          let integer_digits = String.sub number_text ~pos:0 ~len:dot_index in
+          let fraction_digits =
+            String.sub number_text ~pos:(dot_index + 1)
+              ~len:(String.length number_text - dot_index - 1)
+          in
+
+          if String.contains fraction_digits '.' then invalid ();
+
+          let digits = integer_digits ^ fraction_digits in
+
+          if String.is_empty digits then invalid ();
+          Q.make (Z.of_string digits)
+            (Z.pow (Z.of_int 10) (String.length fraction_digits))
+    in
+    scan !end_position (NUM value :: tokens_so_far)
 
   (* Grab a run of letters (digits allowed after the first letter, so names
      like log2 and log10 work) as a single identifier token. *)

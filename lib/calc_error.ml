@@ -12,6 +12,7 @@ type error =
   | Unknown_function of string
   | Failed_to_install
   | No_ai_tool_found
+  | Division_by_zero
 
 (* Raised internally by the lexer, parser, and evaluator; caught at the
    evaluate boundary and turned into a result. *)
@@ -28,3 +29,4 @@ let to_string = function
   | No_ai_tool_found -> "no ai tool found"
   | Unbound_variable name -> Printf.sprintf "unbound variable: %s" name
   | Unknown_function name -> Printf.sprintf "unknown function: %s" name
+  | Division_by_zero -> "division by zero"

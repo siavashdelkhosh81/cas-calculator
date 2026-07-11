@@ -4,7 +4,7 @@ open Stdio
 (* Turn one line of user input into the text to display plus the environment
    to carry into the next iteration. Returns "" when there is nothing to
    print (e.g. /clear, which redraws the screen itself). *)
-let listener ~env (input : string) : string * float Map.M(String).t =
+let listener ~env (input : string) : string * Calculator.Value.t Map.M(String).t =
   match input with
   | "/help" -> (String.concat ~sep:"\n" (Calculator.Commands.help_command ()), env)
   | "/clear" -> Calculator.Commands.clear_command (); ("", env)
