@@ -102,7 +102,7 @@ Anything else is parsed and evaluated as an expression.
 | Exact rationals / bignums (no float error)   | ✅ done        |
 | **Symbolic simplification** (`x + x → 2x`)   | ✅ done        |
 | **Differentiation** (`d/dx`)                 | ✅ done        |
-| Expansion / factoring                        | 🗺️ planned     |
+| Expansion / factoring                        | ✅ done        |
 | Equation solving                             | 🗺️ planned     |
 
 Errors never crash the REPL — every failure is a typed code (`Invalid_char`, `Unexpected_token`, `Unbound_variable`, `Unknown_function`, …) surfaced as a message:

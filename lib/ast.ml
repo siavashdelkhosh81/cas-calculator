@@ -1,3 +1,5 @@
+open Base
+
 (* The expression tree. A literal in source text is always exact, so [Num]
    holds a rational; approximation only appears at evaluation time. *)
 type expr =
@@ -18,3 +20,14 @@ type expr =
 type statement =
   | Expression of expr
   | Let_binding of string * expr
+
+(* Every variable name the tree mentions (the diff variable itself is a
+   binder, not a mention, but the body underneath it still counts). *)
+let rec free_variables (tree : expr) : Set.M(String).t =
+  match tree with
+  | Num _ -> Set.empty (module String)
+  | Var name -> Set.singleton (module String) name
+  | Add (a, b) | Sub (a, b) | Mul (a, b) | Div (a, b) | Expo (a, b) ->
+      Set.union (free_variables a) (free_variables b)
+  | Func (_, a) | Neg a -> free_variables a
+  | Diff (body, _) -> free_variables body

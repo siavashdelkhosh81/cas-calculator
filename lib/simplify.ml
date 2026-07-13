@@ -90,7 +90,14 @@ let rec simplify_sexpr (tree : sexpr) : sexpr =
 and simplify_sum (children : sexpr list) : sexpr =
   let flat : sexpr list =
     List.concat_map children ~f:(fun child ->
-        match child with SSum inner -> inner | other -> [ other ])
+        match child with
+        | SSum inner -> inner
+        (* A constant times a sum distributes when it is a *term of a sum*,
+           so that (x + 1) - (x + 1) can cancel to 0. Standalone products
+           keep their shape — factor's 3*(2*x + 3) must survive. *)
+        | SProd [ SNum c; SSum inner ] ->
+            List.map inner ~f:(fun term -> simplify_prod [ SNum c; term ])
+        | other -> [ other ])
   in
   let coeff_and_rest (term : sexpr) : Q.t * sexpr option =
     match term with
@@ -133,42 +140,34 @@ and simplify_prod (children : sexpr list) : sexpr =
   let constant = List.fold numbers ~init:Q.one ~f:Q.mul in
   if Q.equal constant Q.zero then SNum Q.zero
   else
-    match symbolic with
-    (* Distribute a numeric constant over a lone sum: cheap (term count is
-       unchanged) and required for cancellations like (x+1) - (x+1) -> 0.
-       Full expansion a*(b+c) stays out of scope (PRD 5). *)
-    | [ SSum terms ] when not (Q.equal constant Q.one) ->
-        simplify_sum
-          (List.map terms ~f:(fun term -> simplify_prod [ SNum constant; term ]))
-    | _ ->
-        let base_and_expo (factor : sexpr) : sexpr * sexpr =
-          match factor with
-          | SPow (base, expo) -> (base, expo)
-          | other -> (other, SNum Q.one)
-        in
-        let groups =
-          List.fold symbolic ~init:[] ~f:(fun groups factor ->
-              let base, expo = base_and_expo factor in
-              add_to_group groups ~key:base ~value:[ expo ]
-                ~combine:(fun old_exps new_exps -> old_exps @ new_exps))
-        in
-        let rebuilt =
-          List.map groups ~f:(fun (base, expos) ->
-              simplify_pow base (simplify_sum expos))
-        in
-        (* Rebuilding can fold new constants out (x * 1/x -> x^0 -> 1), so
-           merge them into the coefficient before assembling the result. *)
-        let more_numbers, factors =
-          List.partition_map rebuilt ~f:(fun factor ->
-              match factor with SNum q -> First q | other -> Second other)
-        in
-        let constant = List.fold more_numbers ~init:constant ~f:Q.mul in
-        if Q.equal constant Q.zero then SNum Q.zero
-        else
-          let factors =
-            if Q.equal constant Q.one then factors else SNum constant :: factors
-          in
-          prod_of (List.sort factors ~compare:compare_sexpr)
+    let base_and_expo (factor : sexpr) : sexpr * sexpr =
+      match factor with
+      | SPow (base, expo) -> (base, expo)
+      | other -> (other, SNum Q.one)
+    in
+    let groups =
+      List.fold symbolic ~init:[] ~f:(fun groups factor ->
+          let base, expo = base_and_expo factor in
+          add_to_group groups ~key:base ~value:[ expo ]
+            ~combine:(fun old_exps new_exps -> old_exps @ new_exps))
+    in
+    let rebuilt =
+      List.map groups ~f:(fun (base, expos) ->
+          simplify_pow base (simplify_sum expos))
+    in
+    (* Rebuilding can fold new constants out (x * 1/x -> x^0 -> 1), so
+       merge them into the coefficient before assembling the result. *)
+    let more_numbers, factors =
+      List.partition_map rebuilt ~f:(fun factor ->
+          match factor with SNum q -> First q | other -> Second other)
+    in
+    let constant = List.fold more_numbers ~init:constant ~f:Q.mul in
+    if Q.equal constant Q.zero then SNum Q.zero
+    else
+      let factors =
+        if Q.equal constant Q.one then factors else SNum constant :: factors
+      in
+      prod_of (List.sort factors ~compare:compare_sexpr)
 
 and simplify_pow (base : sexpr) (expo : sexpr) : sexpr =
   match (base, expo) with
@@ -269,6 +268,23 @@ and from_prod (factors : sexpr list) : expr =
   if negated then Neg quotient else quotient
 
 and from_sum (terms : sexpr list) : expr =
+  (* Display order: the constant moves last (x - 1, x^2 + 2*x + 1) — unless
+     every other term is negative, where leading with it reads better
+     (1 - x). Canonical order keeps constants first; this is presentation
+     only. *)
+  let is_negative (term : sexpr) : bool =
+    match term with
+    | SNum q -> Q.sign q < 0
+    | SProd (SNum c :: _) -> Q.sign c < 0
+    | _ -> false
+  in
+  let terms =
+    match terms with
+    | SNum c :: rest
+      when (not (List.is_empty rest))
+           && not (List.for_all rest ~f:is_negative) -> rest @ [ SNum c ]
+    | _ -> terms
+  in
   (* Split a term into its positive form and whether it was negative, so
      x + (-1)*y renders as x - y. *)
   let split (term : sexpr) : expr * bool =
@@ -294,3 +310,54 @@ and from_sum (terms : sexpr list) : expr =
 
 let simplify (expression: expr) : expr =
   from_sexpr (run_to_fixpoint (to_sxpr expression))
+
+(* --- Expansion --------------------------------------------------------- *)
+
+(* Powers of sums beyond this stay unexpanded — correct, just not unfolded. *)
+let max_expanded_power : int = 256
+
+(* The terms a factor contributes to a distributed product. *)
+let terms_of (tree : sexpr) : sexpr list =
+  match tree with SSum terms -> terms | other -> [ other ]
+
+(* Multiply two sums term by term (the distributive law), collecting like
+   terms immediately so (x+1)^50 grows to 51 terms, never 2^50. *)
+let multiply_terms (left : sexpr list) (right : sexpr list) : sexpr list =
+  let products =
+    List.concat_map left ~f:(fun l ->
+        List.map right ~f:(fun r -> simplify_prod [ l; r ]))
+  in
+  terms_of (simplify_sum products)
+
+(* Bottom-up: expand children first, then distribute at this node. Sums and
+   non-sum atoms (functions, lone powers) pass through untouched. *)
+let rec expand_sexpr (tree : sexpr) : sexpr =
+  match tree with
+  | SNum _ | SVar _ -> tree
+  | SFunc (name, arg) -> SFunc (name, expand_sexpr arg)
+  | SSum children -> sum_of (List.map children ~f:expand_sexpr)
+  | SProd children ->
+      let factors = List.map children ~f:expand_sexpr in
+      sum_of
+        (List.fold factors ~init:[ SNum Q.one ] ~f:(fun acc factor ->
+             multiply_terms acc (terms_of factor)))
+  | SPow (base, expo) -> (
+      let base = expand_sexpr base in
+      let expo = expand_sexpr expo in
+      match (base, expo) with
+      (* An integer power of a sum unfolds by repeated multiplication.
+         Negative or fractional exponents stay as they are — that is the
+         correct answer, not an error. *)
+      | SSum _, SNum n
+        when Z.equal (Q.den n) Z.one
+             && Q.sign n >= 0
+             && Z.leq (Q.num n) (Z.of_int max_expanded_power) ->
+          let n = Z.to_int (Q.num n) in
+          sum_of
+            (Fn.apply_n_times ~n
+               (fun acc -> multiply_terms acc (terms_of base))
+               [ SNum Q.one ])
+      | _ -> SPow (base, expo))
+
+let expand (expression : expr) : expr =
+  from_sexpr (run_to_fixpoint (expand_sexpr (to_sxpr expression)))

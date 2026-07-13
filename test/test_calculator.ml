@@ -133,22 +133,22 @@ let () =
 
   (* symbolic evaluation: unbound variables stay symbolic and the result is
      simplified and pretty-printed instead of erroring *)
-  check_exact ~input:"x + 1" ~expected:"1 + x";
+  check_exact ~input:"x + 1" ~expected:"x + 1";
   check_exact ~input:"x + x" ~expected:"2*x";
   check_exact ~input:"x - x" ~expected:"0";
   check_exact ~input:"x * 0" ~expected:"0";
   check_exact ~input:"x/x" ~expected:"1";
   check_exact ~input:"sin(x) + sin(x)" ~expected:"2*sin(x)";
-  check_exact ~input:"2*x + 3*x + 1" ~expected:"1 + 5*x";
+  check_exact ~input:"2*x + 3*x + 1" ~expected:"5*x + 1";
   (* bound variables still substitute before simplifying *)
-  check_session_exact ~inputs:[ "let x = 5"; "x + y" ] ~expected:"5 + y";
+  check_session_exact ~inputs:[ "let x = 5"; "x + y" ] ~expected:"y + 5";
   (* approximate bindings still evaluate numerically *)
   check_session ~inputs:[ "let a = sin 1"; "a + 1" ]
     ~expected:(Float.sin 1.0 +. 1.0);
   (* a diff variable stays symbolic even when bound, also in a larger
      expression *)
   check_session_exact ~inputs:[ "let x = 5"; "diff(x^2, x) + x" ]
-    ~expected:"5 + 2*x";
+    ~expected:"2*x + 5";
   (* let bindings must produce a number, so unbound variables there are
      still an error *)
   check_error ~input:"let y = q + 1"

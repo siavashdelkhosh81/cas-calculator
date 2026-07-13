@@ -184,7 +184,7 @@ let () =
 
   (* diff is a normal expression: it nests and mixes with arithmetic. *)
   check_output ~inputs:[ "diff(diff(x^3, x), x)" ] ~expected:"6*x";
-  check_output ~inputs:[ "diff(x^2, x) + 1" ] ~expected:"1 + 2*x";
+  check_output ~inputs:[ "diff(x^2, x) + 1" ] ~expected:"2*x + 1";
   check_output ~inputs:[ "diff(x, x) + 1" ] ~expected:"2";
 
   (* Bindings substitute into the body, but never into the diff variable. *)

@@ -23,15 +23,22 @@ let rec eval ~(env : Value.t Map.M(String).t) (tree : expr) : Value.t =
      the derivative still mentions it, that is a genuine unbound variable. *)
   | Diff (body, v) -> eval ~env:(Map.remove env v) (Diff.diff body v)
 
-(* Every variable the tree mentions. *)
-let rec free_variables (tree : expr) : Set.M(String).t =
+(* expand(...) and factor(...) are explicit tree transformations, resolved
+   innermost-first and before simplification — so a freshly factored result
+   is never collapsed back into a sum. *)
+let rec apply_transforms (tree : expr) : expr =
   match tree with
-  | Num _ -> Set.empty (module String)
-  | Var name -> Set.singleton (module String) name
-  | Add (a, b) | Sub (a, b) | Mul (a, b) | Div (a, b) | Expo (a, b) ->
-      Set.union (free_variables a) (free_variables b)
-  | Func (_, a) | Neg a -> free_variables a
-  | Diff (body, _) -> free_variables body
+  | Func ("expand", body) -> Simplify.expand (apply_transforms body)
+  | Func ("factor", body) -> Factor.factor (apply_transforms body)
+  | Num _ | Var _ -> tree
+  | Add (a, b) -> Add (apply_transforms a, apply_transforms b)
+  | Sub (a, b) -> Sub (apply_transforms a, apply_transforms b)
+  | Mul (a, b) -> Mul (apply_transforms a, apply_transforms b)
+  | Div (a, b) -> Div (apply_transforms a, apply_transforms b)
+  | Expo (a, b) -> Expo (apply_transforms a, apply_transforms b)
+  | Func (name, a) -> Func (name, apply_transforms a)
+  | Neg a -> Neg (apply_transforms a)
+  | Diff (body, v) -> Diff (apply_transforms body, v)
 
 (* Every variable used as a diff(...) differentiation variable. Their env
    bindings must not leak into the result: `let x = 5` then `diff(x^2, x)`
@@ -74,7 +81,8 @@ let rec substitute_bindings ~(env : Value.t Map.M(String).t) (tree : expr)
    three reasons: unbound, bound to an approximation (evaluated numerically
    here, not substituted), or shadowed as a diff variable (always symbolic). *)
 let render_expression ~(env : Value.t Map.M(String).t) (tree : expr) : string =
-  let simplified = Simplify.simplify (substitute_bindings ~env tree) in
+  let transformed = apply_transforms (substitute_bindings ~env tree) in
+  let simplified = Simplify.simplify transformed in
   let shadowed : Set.M(String).t = diff_variables tree in
   let is_numeric (name : string) : bool =
     Map.mem env name && not (Set.mem shadowed name)
@@ -91,7 +99,7 @@ let evaluate ~(env : Value.t Map.M(String).t) ~(input : string)
     let tokens = Lexer.tokenize input in
     match Parser.parse tokens with
     | Let_binding (name, expr_tree) ->
-      let value = eval ~env expr_tree in
+      let value = eval ~env (apply_transforms expr_tree) in
       let new_env = Map.set env ~key:name ~data:value in
       Ok ((Printf.sprintf "%s = %s" name (Value.to_string value)), new_env)
     | Expression expr_tree -> Ok (render_expression ~env expr_tree, env)

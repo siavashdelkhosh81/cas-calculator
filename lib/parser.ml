@@ -51,6 +51,8 @@ let parser (all_tokens : token list) : expr =
     | Some COSH -> consume (); Func ("cosh", parse_factor ())
     | Some TANH -> consume (); Func ("tanh", parse_factor ())
     | Some DIFF -> consume (); parse_diff ()
+    | Some EXPAND -> consume (); Func ("expand", parse_factor ())
+    | Some FACTOR -> consume (); Func ("factor", parse_factor ())
     | Some MINUS -> consume (); Neg (parse_power ())
     | None -> raise (Calc_error.Calc_error Unexpected_end)
     | Some other -> raise (Calc_error.Calc_error (Unexpected_token (string_of_token other)))

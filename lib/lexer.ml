@@ -28,6 +28,8 @@ type token =
   | TANH
   | TAN
   | DIFF
+  | EXPAND
+  | FACTOR
   | COMMA
   | LPAREN
   | RPAREN
@@ -61,6 +63,8 @@ let string_of_token = function
   | TAN -> "TAN"
   | SLASH -> "SLASH"
   | DIFF -> "DIFF"
+  | EXPAND -> "EXPAND"
+  | FACTOR -> "FACTOR"
   | COMMA -> "COMMA"
   | LPAREN -> "LPAREN"
   | RPAREN -> "RPAREN"
@@ -167,6 +171,8 @@ let tokenize (input : string) : token list =
       | "tanh" -> TANH
       | "sqrt" -> SQRT
       | "diff" -> DIFF
+      | "expand" -> EXPAND
+      | "factor" -> FACTOR
       | "let" -> LET
       | _ -> VAR identifier_text
     in
