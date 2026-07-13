@@ -18,6 +18,70 @@ let rec eval ~(env : Value.t Map.M(String).t) (tree : expr) : Value.t =
       match Map.find env name with
       | Some value -> value
       | None -> raise (Calc_error.Calc_error (Unbound_variable name)))
+  (* Numeric evaluation of a derivative: differentiate, then evaluate. The
+     diff variable names a direction, not a binding, so it is shadowed — if
+     the derivative still mentions it, that is a genuine unbound variable. *)
+  | Diff (body, v) -> eval ~env:(Map.remove env v) (Diff.diff body v)
+
+(* Every variable the tree mentions. *)
+let rec free_variables (tree : expr) : Set.M(String).t =
+  match tree with
+  | Num _ -> Set.empty (module String)
+  | Var name -> Set.singleton (module String) name
+  | Add (a, b) | Sub (a, b) | Mul (a, b) | Div (a, b) | Expo (a, b) ->
+      Set.union (free_variables a) (free_variables b)
+  | Func (_, a) | Neg a -> free_variables a
+  | Diff (body, _) -> free_variables body
+
+(* Every variable used as a diff(...) differentiation variable. Their env
+   bindings must not leak into the result: `let x = 5` then `diff(x^2, x)`
+   is 2*x, never 10. *)
+let rec diff_variables (tree : expr) : Set.M(String).t =
+  match tree with
+  | Num _ | Var _ -> Set.empty (module String)
+  | Add (a, b) | Sub (a, b) | Mul (a, b) | Div (a, b) | Expo (a, b) ->
+      Set.union (diff_variables a) (diff_variables b)
+  | Func (_, a) | Neg a -> diff_variables a
+  | Diff (body, v) -> Set.add (diff_variables body) v
+
+(* Replace variables bound to exact values by their numbers, so `let c = 3`
+   makes diff(c*x^2, x) differentiate 3*x^2. Two exceptions stay symbolic:
+   the diff variable itself (in `let x = 5` then `diff(x^2, x)` the inner x
+   is the differentiation variable, not the binding — so it is shadowed),
+   and approximate bindings, which have no exact tree form. *)
+let rec substitute_bindings ~(env : Value.t Map.M(String).t) (tree : expr)
+    : expr =
+  match tree with
+  | Num _ -> tree
+  | Var name -> (
+      match Map.find env name with
+      | Some (Value.Exact q) -> Num q
+      | Some (Value.Approx _) | None -> tree)
+  | Diff (body, v) ->
+      Diff (substitute_bindings ~env:(Map.remove env v) body, v)
+  | Add (a, b) -> Add (substitute_bindings ~env a, substitute_bindings ~env b)
+  | Sub (a, b) -> Sub (substitute_bindings ~env a, substitute_bindings ~env b)
+  | Mul (a, b) -> Mul (substitute_bindings ~env a, substitute_bindings ~env b)
+  | Div (a, b) -> Div (substitute_bindings ~env a, substitute_bindings ~env b)
+  | Expo (a, b) -> Expo (substitute_bindings ~env a, substitute_bindings ~env b)
+  | Func (name, a) -> Func (name, substitute_bindings ~env a)
+  | Neg a -> Neg (substitute_bindings ~env a)
+
+(* Evaluate an expression for display: substitute the bindings, simplify
+   (which also computes any derivatives), then print a number when every
+   remaining variable still has a usable numeric value — otherwise
+   pretty-print the symbolic expression. Variables can be left over for
+   three reasons: unbound, bound to an approximation (evaluated numerically
+   here, not substituted), or shadowed as a diff variable (always symbolic). *)
+let render_expression ~(env : Value.t Map.M(String).t) (tree : expr) : string =
+  let simplified = Simplify.simplify (substitute_bindings ~env tree) in
+  let shadowed : Set.M(String).t = diff_variables tree in
+  let is_numeric (name : string) : bool =
+    Map.mem env name && not (Set.mem shadowed name)
+  in
+  if Set.for_all (free_variables simplified) ~f:is_numeric then
+    Value.to_string (eval ~env simplified)
+  else Printer.to_string simplified
 
 (* Lex, parse, and evaluate raw input, turning any failure into a result
    carrying a supported error code. *)
@@ -30,5 +94,5 @@ let evaluate ~(env : Value.t Map.M(String).t) ~(input : string)
       let value = eval ~env expr_tree in
       let new_env = Map.set env ~key:name ~data:value in
       Ok ((Printf.sprintf "%s = %s" name (Value.to_string value)), new_env)
-    | Expression expr_tree -> Ok ((Value.to_string (eval ~env expr_tree)), env)
+    | Expression expr_tree -> Ok (render_expression ~env expr_tree, env)
   with Calc_error.Calc_error err -> Error err

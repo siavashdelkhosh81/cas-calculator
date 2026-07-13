@@ -13,6 +13,9 @@ type error =
   | Failed_to_install
   | No_ai_tool_found
   | Division_by_zero
+  | Expected_comma
+  | Expected_variable_name
+  | Not_differentiable of string
 
 (* Raised internally by the lexer, parser, and evaluator; caught at the
    evaluate boundary and turned into a result. *)
@@ -30,3 +33,6 @@ let to_string = function
   | Unbound_variable name -> Printf.sprintf "unbound variable: %s" name
   | Unknown_function name -> Printf.sprintf "unknown function: %s" name
   | Division_by_zero -> "division by zero"
+  | Expected_comma -> "expected ',' — diff takes two arguments: diff(expression, variable)"
+  | Expected_variable_name -> "expected a variable name as the second argument of diff"
+  | Not_differentiable name -> Printf.sprintf "cannot differentiate '%s'" name

@@ -27,6 +27,8 @@ type token =
   | COSH
   | TANH
   | TAN
+  | DIFF
+  | COMMA
   | LPAREN
   | RPAREN
   | VAR of string
@@ -58,6 +60,8 @@ let string_of_token = function
   | COS -> "COS"
   | TAN -> "TAN"
   | SLASH -> "SLASH"
+  | DIFF -> "DIFF"
+  | COMMA -> "COMMA"
   | LPAREN -> "LPAREN"
   | RPAREN -> "RPAREN"
   | VAR name -> Printf.sprintf "VAR %s" name
@@ -80,6 +84,7 @@ let tokenize (input : string) : token list =
       | '^' -> scan (position + 1) (CARET :: tokens_so_far)
       | '/' -> scan (position + 1) (SLASH :: tokens_so_far)
       | '-' -> scan (position + 1) (MINUS :: tokens_so_far)
+      | ',' -> scan (position + 1) (COMMA :: tokens_so_far)
       | ')' -> scan (position + 1) (RPAREN :: tokens_so_far)
       | '(' -> scan (position + 1) (LPAREN :: tokens_so_far)
       | c when Char.is_digit c || Char.equal c '.' -> read_number ~start_position:position ~tokens_so_far:tokens_so_far
@@ -161,6 +166,7 @@ let tokenize (input : string) : token list =
       | "cosh" -> COSH
       | "tanh" -> TANH
       | "sqrt" -> SQRT
+      | "diff" -> DIFF
       | "let" -> LET
       | _ -> VAR identifier_text
     in

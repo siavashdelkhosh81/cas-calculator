@@ -100,8 +100,8 @@ Anything else is parsed and evaluated as an expression.
 | Unary minus (`-5`, `-(2+3)`, `2 - -3`)       | ✅ done        |
 | Variable bindings (`let x = 3`)              | ✅ done        |
 | Exact rationals / bignums (no float error)   | ✅ done        |
-| **Symbolic simplification** (`x + x → 2x`)   | 🗺️ Next     |
-| **Differentiation** (`d/dx`)                 | 🗺️ planned     |
+| **Symbolic simplification** (`x + x → 2x`)   | ✅ done        |
+| **Differentiation** (`d/dx`)                 | ✅ done        |
 | Expansion / factoring                        | 🗺️ planned     |
 | Equation solving                             | 🗺️ planned     |
 

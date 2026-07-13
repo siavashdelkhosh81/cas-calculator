@@ -13,6 +13,9 @@ type error =
   | Failed_to_install           (** failed to install the skill *)
   | No_ai_tool_found            (** no supported AI tool directory in home *)
   | Division_by_zero            (** divisor evaluated to zero *)
+  | Expected_comma              (** [diff] needs two comma-separated arguments *)
+  | Expected_variable_name      (** the second argument of [diff] must be a variable *)
+  | Not_differentiable of string(** function with no derivative rule, e.g. [abs] *)
 
 (** Raised internally by the lexer, parser, and evaluator. It is caught at the
     {!Eval.evaluate} boundary, so callers normally see a [result] instead. *)

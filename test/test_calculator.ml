@@ -96,20 +96,6 @@ let check_error ~input ~expected_error =
         (Calculator.Calc_error.to_string expected_error);
       Int.incr failures
 
-(* Check that [input] fails with [Unbound_variable] on an empty environment. *)
-let check_unbound ~input =
-  let env = Map.empty (module String) in
-  match Calculator.Eval.evaluate ~env ~input with
-  | Error (Calculator.Calc_error.Unbound_variable _) -> ()
-  | Ok (text, _) ->
-      Stdlib.Printf.printf "FAIL: %s = %s, expected unbound-variable error\n"
-        input text;
-      Int.incr failures
-  | Error _ ->
-      Stdlib.Printf.printf
-        "FAIL: %s returned the wrong error, expected unbound-variable\n" input;
-      Int.incr failures
-
 let () =
   (* existing behavior *)
   check ~input:"1 + 2 * 3" ~expected:7.0;
@@ -144,7 +130,29 @@ let () =
   check_session ~inputs:[ "let x = 5"; "x + 1" ] ~expected:6.0;
   check_session ~inputs:[ "let x = 2"; "let y = x ^ 3"; "y - x" ] ~expected:6.0;
   check_session ~inputs:[ "let x = 1"; "let x = 10"; "x" ] ~expected:10.0;
-  check_unbound ~input:"x + 1";
+
+  (* symbolic evaluation: unbound variables stay symbolic and the result is
+     simplified and pretty-printed instead of erroring *)
+  check_exact ~input:"x + 1" ~expected:"1 + x";
+  check_exact ~input:"x + x" ~expected:"2*x";
+  check_exact ~input:"x - x" ~expected:"0";
+  check_exact ~input:"x * 0" ~expected:"0";
+  check_exact ~input:"x/x" ~expected:"1";
+  check_exact ~input:"sin(x) + sin(x)" ~expected:"2*sin(x)";
+  check_exact ~input:"2*x + 3*x + 1" ~expected:"1 + 5*x";
+  (* bound variables still substitute before simplifying *)
+  check_session_exact ~inputs:[ "let x = 5"; "x + y" ] ~expected:"5 + y";
+  (* approximate bindings still evaluate numerically *)
+  check_session ~inputs:[ "let a = sin 1"; "a + 1" ]
+    ~expected:(Float.sin 1.0 +. 1.0);
+  (* a diff variable stays symbolic even when bound, also in a larger
+     expression *)
+  check_session_exact ~inputs:[ "let x = 5"; "diff(x^2, x) + x" ]
+    ~expected:"5 + 2*x";
+  (* let bindings must produce a number, so unbound variables there are
+     still an error *)
+  check_error ~input:"let y = q + 1"
+    ~expected_error:(Calculator.Calc_error.Unbound_variable "q");
 
   (* exact arithmetic (PRD 2 edge-case table) *)
   check_exact ~input:"1/3 + 1/6" ~expected:"1/2";

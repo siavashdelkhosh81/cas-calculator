@@ -27,6 +27,10 @@ let rec to_sxpr (expr: expr) : sexpr =
     SProd [to_sxpr numerator; SProd[SPow(to_sxpr denominator, SNum (Q.of_int (-1)))]]
   | Neg inner ->
     SProd [SNum (Q.of_int(-1)); to_sxpr inner]
+  (* A diff node is resolved right here, so simplifying an expression also
+     computes any derivatives it contains (innermost first, via Diff.diff's
+     own recursion). *)
+  | Diff (body, v) -> to_sxpr (Diff.diff body v)
 
 
 (* Canonical total order: constants first, then variables, then by node kind,
@@ -233,7 +237,7 @@ let rec from_sexpr (tree : sexpr) : expr =
   | SVar name -> Var name
   | SFunc (name, arg) -> Func (name, from_sexpr arg)
   | SPow (base, SNum e) when Q.sign e < 0 ->
-      Div (Num Q.one, from_sexpr (SPow (base, SNum (Q.neg e))))
+      Div (Num Q.one, from_sexpr (simplify_pow base (SNum (Q.neg e))))
   | SPow (base, expo) -> Expo (from_sexpr base, from_sexpr expo)
   | SProd factors -> from_prod factors
   | SSum terms -> from_sum terms

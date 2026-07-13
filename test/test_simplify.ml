@@ -19,6 +19,7 @@ let rec equal_expr (left : expr) (right : expr) : bool =
   | Expo (a1, a2), Expo (b1, b2) -> equal_expr a1 b1 && equal_expr a2 b2
   | Func (n1, a), Func (n2, b) -> String.equal n1 n2 && equal_expr a b
   | Neg a, Neg b -> equal_expr a b
+  | Diff (a, va), Diff (b, vb) -> equal_expr a b && String.equal va vb
   | _ -> false
 
 (* Fully parenthesized rendering, only for failure messages. *)
@@ -33,6 +34,7 @@ let rec show_expr (tree : expr) : string =
   | Expo (a, b) -> Printf.sprintf "(%s ^ %s)" (show_expr a) (show_expr b)
   | Func (name, a) -> Printf.sprintf "%s(%s)" name (show_expr a)
   | Neg a -> Printf.sprintf "(-%s)" (show_expr a)
+  | Diff (a, v) -> Printf.sprintf "diff(%s, %s)" (show_expr a) v
 
 (* Simplifying [input] and [expected] must land on the same canonical tree,
    and simplify must be idempotent on the result. *)
@@ -69,6 +71,7 @@ let rec eval_float ~(x : float) ~(y : float) (tree : expr) : float =
   | Var "x" -> x
   | Var "y" -> y
   | Var name -> failwith ("eval_float: unexpected variable " ^ name)
+  | Diff _ -> failwith "eval_float: unexpected diff node"
   | Add (a, b) -> eval_float ~x ~y a +. eval_float ~x ~y b
   | Sub (a, b) -> eval_float ~x ~y a -. eval_float ~x ~y b
   | Mul (a, b) -> eval_float ~x ~y a *. eval_float ~x ~y b

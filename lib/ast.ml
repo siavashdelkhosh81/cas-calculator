@@ -10,6 +10,9 @@ type expr =
   | Expo of expr * expr
   | Func of string * expr
   | Neg of expr
+  | Diff of expr * string  (* diff(expression, variable): stays in the tree
+                              so derivatives nest and compose like any other
+                              expression *)
 
 
 type statement =

@@ -50,10 +50,32 @@ let parser (all_tokens : token list) : expr =
     | Some SINH -> consume (); Func ("sinh", parse_factor ())
     | Some COSH -> consume (); Func ("cosh", parse_factor ())
     | Some TANH -> consume (); Func ("tanh", parse_factor ())
+    | Some DIFF -> consume (); parse_diff ()
     | Some MINUS -> consume (); Neg (parse_power ())
     | None -> raise (Calc_error.Calc_error Unexpected_end)
     | Some other -> raise (Calc_error.Calc_error (Unexpected_token (string_of_token other)))
 
+
+  (* diff ( <expression> , <variable> ) — the DIFF token is already consumed.
+     Unlike the one-argument functions, diff always requires parentheses. *)
+  and parse_diff () =
+    (match peek () with
+     | Some LPAREN -> consume ()
+     | Some other -> raise (Calc_error.Calc_error (Unexpected_token (string_of_token other)))
+     | None -> raise (Calc_error.Calc_error Unexpected_end));
+    let body = parse_expression () in
+    (match peek () with
+     | Some COMMA -> consume ()
+     | _ -> raise (Calc_error.Calc_error Expected_comma));
+    let variable =
+      match peek () with
+      | Some (VAR name) -> consume (); name
+      | _ -> raise (Calc_error.Calc_error Expected_variable_name)
+    in
+    (match peek () with
+     | Some RPAREN -> consume ()
+     | _ -> raise (Calc_error.Calc_error Missing_rparen));
+    Diff (body, variable)
 
   and parse_power () =
     let base = parse_factor () in
