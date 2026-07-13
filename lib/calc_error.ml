@@ -17,6 +17,7 @@ type error =
   | Expected_variable_name
   | Not_differentiable of string
   | Not_a_polynomial
+  | Cannot_solve of string
 
 (* Raised internally by the lexer, parser, and evaluator; caught at the
    evaluate boundary and turned into a result. *)
@@ -38,3 +39,5 @@ let to_string = function
   | Expected_variable_name -> "expected a variable name as the second argument of diff"
   | Not_differentiable name -> Printf.sprintf "cannot differentiate '%s'" name
   | Not_a_polynomial -> "not a polynomial in one variable"
+  | Cannot_solve var ->
+      Printf.sprintf "cannot solve: not a polynomial equation in %s" var

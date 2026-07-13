@@ -1,3 +1,4 @@
 (tests
- (names test_calculator test_value test_simplify test_diff test_expand_factor)
+ (names test_calculator test_value test_simplify test_diff test_expand_factor
+   test_solve)
  (libraries base calculator zarith))

@@ -103,4 +103,15 @@ let evaluate ~(env : Value.t Map.M(String).t) ~(input : string)
       let new_env = Map.set env ~key:name ~data:value in
       Ok ((Printf.sprintf "%s = %s" name (Value.to_string value)), new_env)
     | Expression expr_tree -> Ok (render_expression ~env expr_tree, env)
+    | Solve (left, right, variable) ->
+      (* Like diff, the solve variable names an unknown, not a binding, so
+         it is shadowed while other bound variables substitute in. *)
+      let env_without_var = Map.remove env variable in
+      let prepare (side : expr) : expr =
+        apply_transforms (substitute_bindings ~env:env_without_var side)
+      in
+      let result =
+        Solve.solve ~left:(prepare left) ~right:(prepare right) ~var:variable
+      in
+      Ok (Solve.to_string result ~var:variable, env)
   with Calc_error.Calc_error err -> Error err

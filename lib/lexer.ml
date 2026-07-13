@@ -30,6 +30,7 @@ type token =
   | DIFF
   | EXPAND
   | FACTOR
+  | SOLVE
   | COMMA
   | LPAREN
   | RPAREN
@@ -65,6 +66,7 @@ let string_of_token = function
   | DIFF -> "DIFF"
   | EXPAND -> "EXPAND"
   | FACTOR -> "FACTOR"
+  | SOLVE -> "SOLVE"
   | COMMA -> "COMMA"
   | LPAREN -> "LPAREN"
   | RPAREN -> "RPAREN"
@@ -173,6 +175,7 @@ let tokenize (input : string) : token list =
       | "diff" -> DIFF
       | "expand" -> EXPAND
       | "factor" -> FACTOR
+      | "solve" -> SOLVE
       | "let" -> LET
       | _ -> VAR identifier_text
     in

@@ -17,6 +17,7 @@ type error =
   | Expected_variable_name      (** the second argument of [diff] must be a variable *)
   | Not_differentiable of string(** function with no derivative rule, e.g. [abs] *)
   | Not_a_polynomial            (** [factor] needs a one-variable polynomial *)
+  | Cannot_solve of string      (** [solve] needs a polynomial equation in the variable *)
 
 (** Raised internally by the lexer, parser, and evaluator. It is caught at the
     {!Eval.evaluate} boundary, so callers normally see a [result] instead. *)

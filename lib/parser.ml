@@ -2,8 +2,19 @@ open Base
 open Ast
 open Lexer
 
-let parser (all_tokens : token list) : expr =
-  let remaining_tokens = ref all_tokens in
+(* One parsing session over one token stream. Statement forms (let, solve)
+   are dispatched up front; everything below is the recursive-descent ladder
+   for expressions. *)
+let parse (all_tokens : token list) : statement =
+  (* Which statement is this, and where does its expression part start? *)
+  let kind, expression_tokens =
+    match all_tokens with
+    | LET :: VAR name :: EQUALS :: rest -> (`Let name, rest)
+    | SOLVE :: rest -> (`Solve, rest)
+    | all -> (`Expression, all)
+  in
+
+  let remaining_tokens = ref expression_tokens in
 
   let peek () =
     match !remaining_tokens with
@@ -56,7 +67,6 @@ let parser (all_tokens : token list) : expr =
     | Some MINUS -> consume (); Neg (parse_power ())
     | None -> raise (Calc_error.Calc_error Unexpected_end)
     | Some other -> raise (Calc_error.Calc_error (Unexpected_token (string_of_token other)))
-
 
   (* diff ( <expression> , <variable> ) — the DIFF token is already consumed.
      Unlike the one-argument functions, diff always requires parentheses. *)
@@ -113,15 +123,42 @@ let parser (all_tokens : token list) : expr =
     !left_side
   in
 
-  let parsed_tree = parse_expression () in
+  (* solve ( <expression> [= <expression>] , <variable> ) — the SOLVE token
+     is already consumed. This is the only place '=' is legal inside an
+     expression context; omitting it means "= 0", as in SymPy. *)
+  let parse_solve () =
+    (match peek () with
+     | Some LPAREN -> consume ()
+     | Some other -> raise (Calc_error.Calc_error (Unexpected_token (string_of_token other)))
+     | None -> raise (Calc_error.Calc_error Unexpected_end));
+    let left = parse_expression () in
+    let right =
+      match peek () with
+      | Some EQUALS -> consume (); parse_expression ()
+      | _ -> Num Q.zero
+    in
+    (match peek () with
+     | Some COMMA -> consume ()
+     | _ -> raise (Calc_error.Calc_error Expected_comma));
+    let variable =
+      match peek () with
+      | Some (VAR name) -> consume (); name
+      | _ -> raise (Calc_error.Calc_error Expected_variable_name)
+    in
+    (match peek () with
+     | Some RPAREN -> consume ()
+     | _ -> raise (Calc_error.Calc_error Missing_rparen));
+    Solve (left, right, variable)
+  in
+
+  let statement =
+    match kind with
+    | `Let name -> Let_binding (name, parse_expression ())
+    | `Solve -> parse_solve ()
+    | `Expression -> Expression (parse_expression ())
+  in
 
   (match peek () with
    | None -> ()
    | Some _ -> raise (Calc_error.Calc_error Trailing_input));
-  parsed_tree
-
-
-let parse (all_tokens: token list) : statement =
-  match all_tokens with
-  | LET :: VAR name :: EQUALS :: rest ->  Let_binding (name, parser rest)
-  | all -> Expression (parser all)
+  statement
