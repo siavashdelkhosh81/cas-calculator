@@ -43,29 +43,7 @@ dune exec calculator
 
 You'll get an interactive prompt:
 
-```
-╔══════════════════════════════════════════════════════════════════════════════════╗
-║   ██████╗ █████╗ ██╗      ██████╗██╗   ██╗██╗      █████╗ ████████╗ ██████╗ ██████╗ ║
-║  ██╔════╝██╔══██╗██║     ██╔════╝██║   ██║██║     ██╔══██╗╚══██╔══╝██╔═══██╗██╔══██╗║
-║  ...                                                                               ║
-╠══════════════════════════════════════════════════════════════════════════════════╣
-║  INDUSTRIAL CALCULATOR · v1.0.0 · arbitrary precision core                         ║
-║  type an expression — /q to quit, /help for help                                   ║
-╚══════════════════════════════════════════════════════════════════════════════════╝
-
-▸ 2 + 3 * 4
-= 14
-▸ (2 + 3) * 4
-= 20
-▸ 2 ^ 3 ^ 2
-= 512
-▸ sqrt(9) + cos(0)
-= 4
-▸ -(2 + 3) * 4
-= -20
-▸ /q
-bye
-```
+<img width="933" height="581" alt="image" src="https://github.com/user-attachments/assets/d9f8173a-b897-4fd5-a7d0-6b363506e232" />
 
 Or evaluate a single expression without entering the REPL:
 
