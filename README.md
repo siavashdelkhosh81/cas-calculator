@@ -75,6 +75,7 @@ The calculator features a robust evaluation and symbolic pipeline, built to safe
 * **Simplification:** Canonical forms and constant folding (e.g., `x + x → 2x`).
 * **Differentiation:** Symbolic derivatives via `d/dx`.
 * **Expansion & Factoring:** Polynomial arithmetic and structural expansion.
+* **Equation Solving:** Linear and quadratic equations solved exactly (e.g., `solve(x^2 = 4, x)`), with rational-root peeling for higher degrees.
 
 
 

@@ -35,8 +35,8 @@ let to_string = function
   | Unbound_variable name -> Printf.sprintf "unbound variable: %s" name
   | Unknown_function name -> Printf.sprintf "unknown function: %s" name
   | Division_by_zero -> "division by zero"
-  | Expected_comma -> "expected ',' — diff takes two arguments: diff(expression, variable)"
-  | Expected_variable_name -> "expected a variable name as the second argument of diff"
+  | Expected_comma -> "expected ',' before the variable argument"
+  | Expected_variable_name -> "expected a variable name as the last argument"
   | Not_differentiable name -> Printf.sprintf "cannot differentiate '%s'" name
   | Not_a_polynomial -> "not a polynomial in one variable"
   | Cannot_solve var ->
