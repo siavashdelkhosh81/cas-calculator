@@ -6,7 +6,7 @@ let failures = ref 0
 let parse_expr (input : string) : expr =
   match Calculator.Parser.parse (Calculator.Lexer.tokenize input) with
   | Expression tree -> tree
-  | Let_binding _ -> failwith ("test input is a let binding: " ^ input)
+  | Let_binding _ | Solve _ -> failwith ("test input is not an expression: " ^ input)
 
 let rec equal_expr (left : expr) (right : expr) : bool =
   match (left, right) with

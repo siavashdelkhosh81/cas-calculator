@@ -1,5 +1,12 @@
 (** Factoring univariate polynomials over the rationals. *)
 
+(** [rational_roots p] finds every rational root of [p] (with multiplicity,
+    via the rational root theorem and exact division) and returns them with
+    the remaining polynomial that has no rational roots left. Gives up
+    gracefully on coefficients too large to enumerate divisors of — the
+    unsearched part simply stays in the remainder. *)
+val rational_roots : Polynomial.t -> Q.t list * Polynomial.t
+
 (** [factor tree] rewrites a one-variable polynomial as
     content * (linear factors) * irreducible rest, e.g.
     [x^3 - x] becomes [x*(x - 1)*(x + 1)] and [6*x + 9] becomes

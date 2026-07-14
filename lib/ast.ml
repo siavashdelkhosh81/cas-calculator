@@ -20,6 +20,10 @@ type expr =
 type statement =
   | Expression of expr
   | Let_binding of string * expr
+  | Solve of expr * expr * string  (* solve(left = right, variable). A
+                                      statement, not an expression: its
+                                      result is a set of solutions, not a
+                                      value, so it cannot nest. *)
 
 (* Every variable name the tree mentions (the diff variable itself is a
    binder, not a mention, but the body underneath it still counts). *)

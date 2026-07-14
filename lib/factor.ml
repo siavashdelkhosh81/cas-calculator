@@ -71,18 +71,26 @@ let linear_factor_of_root (root : Q.t) : Polynomial.t =
 (* Peel one linear factor per found root until none divides. By Gauss's
    lemma the quotient of a primitive polynomial by a primitive linear
    factor is again primitive, so the loop invariant holds throughout. *)
-let rec peel_roots (p : Polynomial.t) (found : Polynomial.t list)
-    : Polynomial.t list * Polynomial.t =
+let rec peel_roots (p : Polynomial.t) (found : Q.t list)
+    : Q.t list * Polynomial.t =
   if Polynomial.degree p < 1 then (List.rev found, p)
   else
     match find_rational_root p with
     | None -> (List.rev found, p)
     | Some root ->
-        let linear = linear_factor_of_root root in
-        let quotient, remainder = Polynomial.divmod p linear in
+        let quotient, remainder =
+          Polynomial.divmod p (linear_factor_of_root root)
+        in
         if not (Polynomial.is_zero remainder) then
           failwith "Factor: a found root did not divide the polynomial";
-        peel_roots quotient (linear :: found)
+        peel_roots quotient (root :: found)
+
+(* Roots with multiplicity, plus whatever polynomial has no rational root
+   left. Primitivizes internally — the rational root theorem needs integer
+   coefficients — which is harmless because scaling never moves a root. *)
+let rational_roots (poly : Polynomial.t) : Q.t list * Polynomial.t =
+  let _content, primitive = content_and_primitive poly in
+  peel_roots primitive []
 
 (* Factor a univariate rational polynomial over the rationals:
    content * x^k * (linear factors from rational roots) * irreducible rest.
@@ -97,7 +105,8 @@ let factor (tree : expr) : expr =
       if Polynomial.degree poly <= 0 then simplified
       else begin
         let content, primitive = content_and_primitive poly in
-        let linear_factors, rest = peel_roots primitive [] in
+        let roots, rest = peel_roots primitive [] in
+        let linear_factors = List.map roots ~f:linear_factor_of_root in
         (* A fully peeled primitive ends in the constant 1; fold whatever
            constant is left into the numeric factor. *)
         let content, remaining_factors =
