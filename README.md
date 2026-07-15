@@ -158,5 +158,3 @@ For significant architectural changes or major new algebraic capabilities, pleas
 ## License
 
 Distributed under the APACHE License. See `LICENSE` for more information.
-
-```
