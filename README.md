@@ -8,7 +8,7 @@
 
 [![OCaml](https://img.shields.io/badge/OCaml-5.x-EC6813?logo=ocaml&logoColor=white)](https://ocaml.org)
 [![Build](https://img.shields.io/badge/build-dune-blueviolet)](https://dune.build)
-[![License](https://img.shields.io/badge/license-Apache_2.0-lightgrey)]()
+[![License](https://img.shields.io/badge/license-Apache_2.0-lightgrey)](LICENSE)
 
 </div>
 
@@ -157,4 +157,4 @@ For significant architectural changes or major new algebraic capabilities, pleas
 
 ## License
 
-Distributed under the APACHE License. See `LICENSE` for more information.
+Distributed under the Apache License, Version 2.0. See `LICENSE` for more information.
