@@ -77,8 +77,6 @@ The calculator features a robust evaluation and symbolic pipeline, built to safe
 * **Expansion & Factoring:** Polynomial arithmetic and structural expansion.
 * **Equation Solving:** Linear and quadratic equations solved exactly (e.g., `solve(x^2 = 4, x)`), with rational-root peeling for higher degrees.
 
-
-
 ---
 
 ## Architecture
@@ -94,8 +92,6 @@ The system follows a classic compiler front-end pipeline:
 | **AST** | `lib/ast.ml` | Defines the `expr` tree (`Num`, `Var`, `Add`, `Sub`, `Mul`, `Div`, `Func`, etc). |
 | **Eval** | `lib/eval.ml` | Traverses the AST to simplify, differentiate, or evaluate the mathematical result. |
 | **Errors** | `lib/calc_error.ml` | Typed error management; prevents runtime crashes and ensures safe failure. |
-
-> **Note:** An interactive, step-by-step visualization of how the parser builds the AST is available in [`docs/parser-explained.html`](https://www.google.com/search?q=docs/parser-explained.html). Open it in your browser to observe the call stack in action.
 
 ---
 
@@ -115,8 +111,6 @@ The system follows a classic compiler front-end pipeline:
 │   ├── commands.ml      # REPL command routing
 │   ├── skill.ml         # Skill documentation generation
 │   └── fs.ml            # Filesystem utilities
-├── docs/
-│   └── parser-explained.html 
 ├── test/                # Unit and integration tests
 └── dune-project
 
