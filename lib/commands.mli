@@ -7,7 +7,7 @@ val commands : (string * string) list
     followed by one aligned line per entry in {!commands}. *)
 val help_command : unit -> string list
 
-
+(** [clear_command ()] clears the terminal screen and reprints the banner. *)
 val clear_command : unit -> unit
 
 (** [install_skill ()] writes the calculator skill file into the skills
