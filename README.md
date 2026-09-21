@@ -41,6 +41,11 @@ dune exec calculator
 
 You will be greeted with an interactive prompt:
 
+```text
+▸ 1 + 2
+= 3
+```
+
 You can also evaluate a single expression directly from your terminal without entering the REPL:
 
 ```bash
