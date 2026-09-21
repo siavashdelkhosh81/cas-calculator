@@ -1,12 +1,12 @@
 ## Description
-<!-- 
-Briefly describe the changes introduced by this PR. 
-Why is this change required? What problem does it solve? 
+<!--
+Briefly describe the changes introduced by this PR.
+Why is this change required? What problem does it solve?
 -->
 
 ## Related Issue(s)
-<!-- 
-Link the related open issue(s) here. 
+<!--
+Link the related open issue(s) here.
 Use the "Closes #123" syntax so GitHub automatically closes the issue when this PR is merged.
 -->
 Closes #
@@ -20,9 +20,9 @@ Closes #
 - [ ] 🧹 Chores / Refactoring / CI (no functional changes)
 
 ## How Has This Been Tested?
-<!-- 
-Please describe the tests that you ran to verify your changes. 
-Provide instructions so the maintainers can reproduce. 
+<!--
+Please describe the tests that you ran to verify your changes.
+Provide instructions so the maintainers can reproduce.
 -->
 - [ ] Local manual testing
 - [ ] Added/updated unit tests
