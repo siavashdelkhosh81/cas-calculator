@@ -77,10 +77,10 @@ The calculator features a robust evaluation and symbolic pipeline, built to safe
 * **Functions:** Native support for `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh`, `sqrt`, `exp`, `ln`, `log`/`log10`, `log2`, `abs`, `floor`, `ceil`, `round`.
 * **Variable Bindings:** Supports local environment assignments (e.g., `let x = 3`).
 * **Symbolic Mathematics:**
-* **Simplification:** Canonical forms and constant folding (e.g., `x + x → 2x`).
-* **Differentiation:** Symbolic derivatives via `d/dx`.
-* **Expansion & Factoring:** Polynomial arithmetic and structural expansion.
-* **Equation Solving:** Linear and quadratic equations solved exactly (e.g., `solve(x^2 = 4, x)`), with rational-root peeling for higher degrees.
+  * **Simplification:** Canonical forms and constant folding (e.g., `x + x → 2x`).
+  * **Differentiation:** Symbolic derivatives via `diff(expression, variable)` (e.g., `diff(x^2, x)`).
+  * **Expansion & Factoring:** Polynomial arithmetic via `expand(...)` and `factor(...)`.
+  * **Equation Solving:** Linear and quadratic equations solved exactly (e.g., `solve(x^2 = 4, x)`), with rational-root peeling for higher degrees.
 
 ---
 
@@ -94,7 +94,7 @@ The system follows a classic compiler front-end pipeline:
 | --- | --- | --- |
 | **Lexer** | `lib/lexer.ml` | Transforms raw input strings into a flat stream of tokens. |
 | **Parser** | `lib/parser.ml` | Recursive descent parsing; structures tokens into an AST based on precedence. |
-| **AST** | `lib/ast.ml` | Defines the `expr` tree (`Num`, `Var`, `Add`, `Sub`, `Mul`, `Div`, `Func`, etc). |
+| **AST** | `lib/ast.ml` | Defines the `expr` tree (`Num`, `Var`, `Add`, `Sub`, `Mul`, `Div`, `Expo`, `Func`, `Neg`, `Diff`). |
 | **Eval** | `lib/eval.ml` | Traverses the AST to simplify, differentiate, or evaluate the mathematical result. |
 | **Errors** | `lib/calc_error.ml` | Typed error management; prevents runtime crashes and ensures safe failure. |
 
@@ -111,6 +111,13 @@ The system follows a classic compiler front-end pipeline:
 │   ├── parser.ml        # Tokens → AST
 │   ├── ast.ml           # Expression tree types
 │   ├── eval.ml          # AST → Result (CAS engine)
+│   ├── value.ml         # Exact rationals with float fallback
+│   ├── simplify.ml      # Simplification and expansion
+│   ├── diff.ml          # Symbolic differentiation
+│   ├── polynomial.ml    # Univariate polynomials over the rationals
+│   ├── factor.ml        # Polynomial factoring
+│   ├── solve.ml         # Equation solving
+│   ├── printer.ml       # AST → calculator syntax
 │   ├── calc_error.ml    # Shared error codes and handling
 │   ├── banner.ml        # REPL UI/UX components
 │   ├── commands.ml      # REPL command routing
