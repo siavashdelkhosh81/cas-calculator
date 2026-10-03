@@ -11,7 +11,7 @@
 
 (maintainers "Siavash delkhosh <47573636+siavashdelkhosh81@users.noreply.github.com>")
 
-(license LICENSE)
+(license Apache-2.0)
 
 (documentation https://github.com/siavashdelkhosh81/cas-calculator#readme)
 

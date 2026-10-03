@@ -4,7 +4,7 @@ synopsis: "A fast, open-source computer algebra system built in OCaml"
 description: "Lex, parse, and evaluate: an algebra engine written in OCaml, with exact rational arithmetic, symbolic differentiation, simplification, and equation solving."
 maintainer: ["Siavash delkhosh <47573636+siavashdelkhosh81@users.noreply.github.com>"]
 authors: ["Siavash delkhosh <47573636+siavashdelkhosh81@users.noreply.github.com>"]
-license: "LICENSE"
+license: "Apache-2.0"
 tags: ["ocaml" "cas" "computer-algebra-system" "calculator" "symbolic-math"]
 homepage: "https://github.com/siavashdelkhosh81/cas-calculator"
 doc: "https://github.com/siavashdelkhosh81/cas-calculator#readme"
