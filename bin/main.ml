@@ -33,10 +33,9 @@ let repl () =
   in
   loop (Map.empty (module String))
 
-
 let calculate (expression : string) =
-  let env = Map.empty(module String) in
-  match Calculator.Eval.evaluate ~env:env ~input:expression with
+  let env = Map.empty (module String) in
+  match Calculator.Eval.evaluate ~env ~input:expression with
   | Ok (result, _env) -> print_endline result
   | Error code ->
       eprintf "error: %s\n" (Calculator.Calc_error.to_string code);
