@@ -60,7 +60,7 @@ dune exec -- calculator calculate "-1 + 2"
 | --- | --- |
 | `/help` | List available commands |
 | `/clear` | Clear the screen |
-| `/install_skill` | Install the calculator skill into AI tools (`~/.claude`) |
+| `/install_skill` | Install the calculator skill into the AI tools found in your home directory (`~/.claude`, `~/.cursor`, `~/.codex`) |
 | `/q` | Quit the REPL |
 
 Any other input is parsed and evaluated as a mathematical expression.
@@ -94,7 +94,7 @@ The system follows a classic compiler front-end pipeline:
 | --- | --- | --- |
 | **Lexer** | `lib/lexer.ml` | Transforms raw input strings into a flat stream of tokens. |
 | **Parser** | `lib/parser.ml` | Recursive descent parsing; structures tokens into an AST based on precedence. |
-| **AST** | `lib/ast.ml` | Defines the `expr` tree (`Num`, `Var`, `Add`, `Sub`, `Mul`, `Div`, `Expo`, `Func`, `Neg`, `Diff`). |
+| **AST** | `lib/ast.ml` | Defines the `expr` tree (`Num`, `Var`, `Add`, `Sub`, `Mul`, `Div`, `Expo`, `Func`, `Neg`, `Diff`) and the top-level `statement` (`Expression`, `Let_binding`, `Solve`). |
 | **Eval** | `lib/eval.ml` | Traverses the AST to simplify, differentiate, or evaluate the mathematical result. |
 | **Errors** | `lib/calc_error.ml` | Typed error management; prevents runtime crashes and ensures safe failure. |
 
