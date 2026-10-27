@@ -15,7 +15,7 @@ type error =
   | Division_by_zero            (** divisor evaluated to zero *)
   | Expected_comma              (** [diff]/[solve] need comma-separated arguments *)
   | Expected_variable_name      (** the last argument of [diff]/[solve] must be a variable *)
-  | Not_differentiable of string(** function with no derivative rule, e.g. [abs] *)
+  | Not_differentiable of string (** function with no derivative rule, e.g. [abs] *)
   | Not_a_polynomial            (** [factor] needs a one-variable polynomial *)
   | Cannot_solve of string      (** [solve] needs a polynomial equation in the variable *)
 

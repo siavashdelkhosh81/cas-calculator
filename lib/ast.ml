@@ -16,7 +16,6 @@ type expr =
                               so derivatives nest and compose like any other
                               expression *)
 
-
 type statement =
   | Expression of expr
   | Let_binding of string * expr
