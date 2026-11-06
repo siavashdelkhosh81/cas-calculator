@@ -12,26 +12,20 @@ let help_command () =
   let width =
     List.fold commands ~init:0 ~f:(fun acc (name, _) -> max acc (String.length name))
   in
-
   let render (name, desc) = Printf.sprintf "  %-*s  %s" width name desc in
-
   "commands:" :: List.map commands ~f:render
-
 
 let install_skill () =
   let supported_tools = [ ".claude"; ".cursor"; ".codex" ] in
-
   match Sys.getenv "HOME" with
   | None -> Error Calc_error.Failed_to_install
   | Some home ->
       let ( / ) = Stdlib.Filename.concat in
-
       (* Keep only the tools the user actually has. *)
       let found_tools =
         List.filter supported_tools ~f:(fun tool ->
             Stdlib.Sys.file_exists (home / tool))
       in
-
       (* Run through the list and install the skill. *)
       (match found_tools with
        | [] -> Error Calc_error.No_ai_tool_found
