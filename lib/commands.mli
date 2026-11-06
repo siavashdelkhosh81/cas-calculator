@@ -13,6 +13,7 @@ val clear_command : unit -> unit
 (** [install_skill ()] writes the calculator skill file into the skills
     directory of every supported AI tool found in the user's home
     ([.claude], [.cursor], [.codex]). Returns [Ok message] naming the tools
-    it installed for, or [Error Failed_to_install] if home can't be found,
-    no tool directory exists, or a write fails. *)
+    it installed for, [Error No_ai_tool_found] if none of those tool
+    directories exist, or [Error Failed_to_install] if home can't be found
+    or a write fails. *)
 val install_skill : unit -> (string, Calc_error.error) result
