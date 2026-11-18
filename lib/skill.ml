@@ -70,8 +70,10 @@ Explicit CAS operations:
   It reports `no solution`, `no real solutions`, or `all real numbers` when
   appropriate.
 
-These compose: `diff`, `expand`, `factor`, and `solve` can be nested inside
-each other and inside ordinary arithmetic.
+These compose: `diff`, `expand`, and `factor` can be nested inside each
+other and inside ordinary arithmetic. `solve` is a whole statement, not an
+expression (its result is a set of solutions), so it cannot be nested, but
+its arguments may use the others.
 
 ## Interactive REPL
 
