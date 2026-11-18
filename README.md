@@ -36,7 +36,6 @@ dune build
 
 # Launch the REPL
 dune exec calculator
-
 ```
 
 You will be greeted with an interactive prompt:
@@ -51,7 +50,6 @@ You can also evaluate a single expression directly from your terminal without en
 ```bash
 dune exec -- calculator calculate "-1 + 2"
 # 1
-
 ```
 
 ### REPL Commands
@@ -125,7 +123,6 @@ The system follows a classic compiler front-end pipeline:
 │   └── fs.ml            # Filesystem utilities
 ├── test/                # Unit and integration tests
 └── dune-project
-
 ```
 
 ---
@@ -139,7 +136,6 @@ dune build            # Compile the project
 dune exec calculator  # Run the interactive REPL
 dune test             # Execute the test suite
 dune fmt              # Format code (requires ocamlformat)
-
 ```
 
 ---
