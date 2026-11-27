@@ -72,8 +72,8 @@ The calculator features a robust evaluation and symbolic pipeline, built to safe
 * **Core Parsing:** Tokenizer and recursive-descent parser with proper precedence mapping.
 * **Arithmetic:** `+`, `-`, `*`, `/`, `^` (power), and parentheses.
 * **Exact Arithmetic:** Built on exact rationals and bignums (no floating-point rounding errors).
-* **Functions:** Native support for `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh`, `sqrt`, `exp`, `ln`, `log`/`log10`, `log2`, `abs`, `floor`, `ceil`, `round`.
-* **Variable Bindings:** Supports local environment assignments (e.g., `let x = 3`).
+* **Functions:** Native support for `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh`, `sqrt`, `exp`, `ln`, `log` (base 10, alias `log10`), `log2`, `abs`, `floor`, `ceil`, `round`.
+* **Variable Bindings:** Supports local environment assignments (e.g., `let x = 3`) that persist across lines in the REPL.
 * **Symbolic Mathematics:**
   * **Simplification:** Canonical forms and constant folding (e.g., `x + x → 2*x`).
   * **Differentiation:** Symbolic derivatives via `diff(expression, variable)` (e.g., `diff(x^2, x)`).
