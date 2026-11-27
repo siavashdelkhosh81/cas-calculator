@@ -75,7 +75,7 @@ The calculator features a robust evaluation and symbolic pipeline, built to safe
 * **Functions:** Native support for `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `sinh`, `cosh`, `tanh`, `sqrt`, `exp`, `ln`, `log`/`log10`, `log2`, `abs`, `floor`, `ceil`, `round`.
 * **Variable Bindings:** Supports local environment assignments (e.g., `let x = 3`).
 * **Symbolic Mathematics:**
-  * **Simplification:** Canonical forms and constant folding (e.g., `x + x → 2x`).
+  * **Simplification:** Canonical forms and constant folding (e.g., `x + x → 2*x`).
   * **Differentiation:** Symbolic derivatives via `diff(expression, variable)` (e.g., `diff(x^2, x)`).
   * **Expansion & Factoring:** Polynomial arithmetic via `expand(...)` and `factor(...)`.
   * **Equation Solving:** Linear and quadratic equations solved exactly (e.g., `solve(x^2 = 4, x)`), with rational-root peeling for higher degrees.
